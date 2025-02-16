@@ -1,4 +1,21 @@
+version: "3.12"
 
----
+services:
+  backend:
+    build: .
+    container_name: scrna-backend
+    volumes:
+      - ./data:/app/data  # Mount local data directory into the container
+      - ./results:/app/results  # Save results outside the container
+    command: ["python", "src/main.py"]  # Runs the pipeline
+    depends_on:
+      - web  # Ensure web interface runs after backend processing
 
-#### **Open `.gitignore`** and add:
+  web:
+    build: .
+    container_name: scrna-web
+    ports:
+      - "8501:8501"  # Expose PyShiny (or Streamlit) frontend
+    command: ["python", "src/app.py"]  # Runs PyShiny app
+    depends_on:
+      - backend  # Wait for backend to be ready
