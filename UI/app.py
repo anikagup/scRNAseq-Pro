@@ -12,7 +12,7 @@ def server(input, output, session):
     @output
     @render.image
     def plot():
-        # Get the absolute path for the 'static/' folder
+        # Get the absolute path for the 'static/' folder if present
         static_dir = os.path.join(os.getcwd(), 'static')
         img_path = os.path.join(static_dir, 'plot_image.png')
 
