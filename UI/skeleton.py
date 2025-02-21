@@ -71,3 +71,4 @@ def server(input, output, session):
 
 # Create the Shiny app
 app = App(app_ui, server)
+
