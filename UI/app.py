@@ -1,6 +1,7 @@
 from shiny import App, ui, render, reactive
 import os
 import subprocess
+import shutil  # Import shutil to move/copy files
 import matplotlib.pyplot as plt
 
 # Define the UI layout
@@ -14,15 +15,30 @@ app_ui = ui.page_fluid(
 )
 
 def server(input, output, session):
-    # Display file name
+    upload_dir = os.path.join(os.getcwd(), 'uploads')  # Define a directory to store uploads
+    os.makedirs(upload_dir, exist_ok=True)  # Ensure the directory exists
+
+    # Function to save uploaded file
+    def save_uploaded_file():
+        file = input.file_upload()
+        if file:
+            temp_path = file[0]["datapath"]  # Get temporary file path
+            saved_path = os.path.join(upload_dir, file[0]["name"])  # Define target path
+            shutil.move(temp_path, saved_path)  # Move file to 'uploads/' directory
+            return saved_path  # Return the new saved file path
+        return None
+
+    # Display file name and save file
     @output
     @render.text
     def file_info():
         file = input.file_upload()
         if file is None:
             return "No file uploaded."
-        return f"File Name: {file[0]['name']}"
-    
+        
+        saved_path = save_uploaded_file()  # Save the file
+        return f"File Saved: {saved_path}" if saved_path else "Error saving file."
+
     # Show buttons after file upload
     @output
     @render.ui
@@ -31,7 +47,6 @@ def server(input, output, session):
         if file is None:
             return None  # No buttons if no file is uploaded
 
-        # Create two action buttons once the file is uploaded
         return ui.div(
             ui.input_action_button("button1", "UMAP"),
             ui.input_action_button("button2", "TSNE")
@@ -45,10 +60,8 @@ def server(input, output, session):
         img_filename = 'UMAP.png'
         img_path = os.path.join(static_dir, img_filename)
 
-        # Ensure the 'static/' directory exists
-        os.makedirs(static_dir, exist_ok=True)
+        os.makedirs(static_dir, exist_ok=True)  # Ensure 'static/' exists
 
-        # If Button 1 is clicked, generate plot from "pretendUMAP.py"
         if input.button1():
             if not os.path.exists(img_path):
                 print(f"Generating UMAP plot at {img_path}")
@@ -56,7 +69,6 @@ def server(input, output, session):
 
             return {"src": f"static/{img_filename}", "height": "400px"}
 
-        # If Button 2 is clicked, generate a plot from "generate_graph.py"
         elif input.button2():
             graph_filename = 'TSNE.png'
             graph_path = os.path.join(static_dir, graph_filename)
@@ -71,15 +83,3 @@ def server(input, output, session):
 
 # Create the Shiny app
 app = App(app_ui, server)
-
-
-
-
-
-
-
-
-
-
-
-
