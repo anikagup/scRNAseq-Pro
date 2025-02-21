@@ -33,8 +33,8 @@ def server(input, output, session):
 
         # Create two action buttons once the file is uploaded
         return ui.div(
-            ui.input_action_button("button1", "Button 1"),
-            ui.input_action_button("button2", "Button 2")
+            ui.input_action_button("button1", "UMAP"),
+            ui.input_action_button("button2", "TSNE")
         )
     
     # Plot image display (only after Button 1 or Button 2 is clicked)
