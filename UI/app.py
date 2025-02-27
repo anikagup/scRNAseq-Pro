@@ -1,8 +1,7 @@
 from shiny import App, ui, render, reactive
 import os
 import subprocess
-import shutil  # Import shutil to move/copy files
-import matplotlib.pyplot as plt
+import shutil  
 
 # Define the UI layout
 app_ui = ui.page_fluid(
@@ -10,25 +9,25 @@ app_ui = ui.page_fluid(
     ui.panel_title("Welcome to RNA Pro"),
     ui.input_file("file_upload", "Please Upload Your fastq File", multiple=False, accept=[".fastq"]),
     ui.output_text("file_info"),
-    ui.output_ui("buttons"),  # Move buttons above the plot
-    ui.output_image("plot")   # Plot now comes after the buttons
+    ui.output_ui("buttons"),  
+    ui.output_image("plot")  
 )
 
 def server(input, output, session):
-    upload_dir = os.path.join(os.getcwd(), 'uploads')  # Define a directory to store uploads
-    os.makedirs(upload_dir, exist_ok=True)  # Ensure the directory exists
+    upload_dir = os.path.join(os.getcwd(), 'uploads')  
+    os.makedirs(upload_dir, exist_ok=True)  
 
-    # Function to save uploaded file
+    selected_plot = reactive.Value("")  # Track the last clicked button
+
     def save_uploaded_file():
         file = input.file_upload()
         if file:
-            temp_path = file[0]["datapath"]  # Get temporary file path
-            saved_path = os.path.join(upload_dir, file[0]["name"])  # Define target path
-            shutil.move(temp_path, saved_path)  # Move file to 'uploads/' directory
-            return saved_path  # Return the new saved file path
+            temp_path = file[0]["datapath"]  
+            saved_path = os.path.join(upload_dir, file[0]["name"])  
+            shutil.move(temp_path, saved_path)  
+            return saved_path  
         return None
 
-    # Display file name and save file
     @output
     @render.text
     def file_info():
@@ -36,50 +35,63 @@ def server(input, output, session):
         if file is None:
             return "No file uploaded."
         
-        saved_path = save_uploaded_file()  # Save the file
+        saved_path = save_uploaded_file()  
         return f"File Saved: {saved_path}" if saved_path else "Error saving file."
 
-    # Show buttons after file upload
     @output
     @render.ui
     def buttons():
         file = input.file_upload()
         if file is None:
-            return None  # No buttons if no file is uploaded
+            return None  
 
         return ui.div(
             ui.input_action_button("button1", "UMAP"),
             ui.input_action_button("button2", "TSNE")
         )
-    
-    # Plot image display (only after Button 1 or Button 2 is clicked)
+
+    # Ensure reactivity is correctly triggered
+    @reactive.effect
+    @reactive.event(input.button1)
+    def on_umap_click():
+        selected_plot.set("UMAP")
+
+    @reactive.effect
+    @reactive.event(input.button2)
+    def on_tsne_click():
+        selected_plot.set("TSNE")
+
     @output
     @render.image
     def plot():
+        plot_type = selected_plot.get()
+        if not plot_type:
+            return None  # No plot until a button is clicked
+
         static_dir = os.path.join(os.getcwd(), 'static')
-        img_filename = 'UMAP.png'
-        img_path = os.path.join(static_dir, img_filename)
+        os.makedirs(static_dir, exist_ok=True)  
 
-        os.makedirs(static_dir, exist_ok=True)  # Ensure 'static/' exists
-
-        if input.button1():
-            if not os.path.exists(img_path):
-                print(f"Generating UMAP plot at {img_path}")
-                subprocess.run(['python', 'pretendUMAP.py', img_path])
-
+        if plot_type == "UMAP":
+            img_filename = 'UMAP.png'
+            img_path = os.path.join(static_dir, img_filename)
+            print(f"Generating UMAP plot at {img_path}")
+            subprocess.run(['python', 'pretendUMAP.py', img_path])
             return {"src": f"static/{img_filename}", "height": "400px"}
 
-        elif input.button2():
-            graph_filename = 'TSNE.png'
-            graph_path = os.path.join(static_dir, graph_filename)
+        elif plot_type == "TSNE":
+            img_filename = 'TSNE.png'
+            img_path = os.path.join(static_dir, img_filename)
+            print(f"Generating TSNE plot at {img_path}")
+            subprocess.run(['python', 'pretendTSNE.py', img_path])
+            return {"src": f"static/{img_filename}", "height": "400px"}
 
-            if not os.path.exists(graph_path):
-                print(f"Generating Graph plot at {graph_path}")
-                subprocess.run(['python', 'pretendTSNE.py', graph_path])
-
-            return {"src": f"static/{graph_filename}", "height": "400px"}
-
-        return None  # No plot if no button is clicked
+        return None  
 
 # Create the Shiny app
 app = App(app_ui, server)
+
+
+
+
+
+
