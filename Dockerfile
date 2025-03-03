@@ -1,18 +1,15 @@
-# Use Python 3.10 as the base image
-FROM python:3.10
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
 # Set the working directory
 WORKDIR /app
 
-# Copy dependencies first
+# Copy requirements and install dependencies
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY src/ ./src
-COPY main.py .
+# Copy all app files
+COPY . .
 
-# Set the default command
-CMD ["python", "src/main.py"]
+# Run the config generator first
+CMD ["python", "config_generator.py"]

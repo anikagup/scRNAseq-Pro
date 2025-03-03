@@ -1,0 +1,17 @@
+{
+    "input_file": "data/sample_data.h5",
+    "file_type": "auto",
+    "preprocessing_params": {
+        "min_genes": 300,
+        "min_cells": 5,
+        "target_sum": 10000,
+        "n_top_genes": 2500,
+        "max_value": 10,
+        "n_neighbors": 15,
+        "n_pcs": 30
+    },
+    "differential_expression": {
+        "resolution": 0.5,
+        "num_degs": 25
+    }
+}
