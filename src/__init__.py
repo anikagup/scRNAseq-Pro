@@ -1,1 +1,2 @@
-from .preprocessing import preprocess_data, load_data
+from .preprocessing import preprocess_data, load_data, generate_qc_metrics
+from .analysis import perform_differential_expression, generate_umap_visualizations

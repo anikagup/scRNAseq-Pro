@@ -13,5 +13,12 @@
     "differential_expression": {
         "resolution": 0.5,
         "num_degs": 25
-    }
+    },
+
+    "visualization": {
+    "umap_colors": ["leiden", "total_counts", "pct_counts_mt"],
+    "custom_genes": []
+}
+
+
 }

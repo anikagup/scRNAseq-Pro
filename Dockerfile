@@ -8,8 +8,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all app files
+# Install Shiny for Python
+RUN pip install shiny matplotlib scanpy
+
+# Copy all files
 COPY . .
 
-# Run the config generator first
-CMD ["python", "config_generator.py"]
+# Create a directory for serving images
+RUN mkdir -p /app/www
+
+# Expose the app port
+EXPOSE 8000
+
+# Run the Shiny app
+CMD ["shiny", "run", "--port", "8000", "app.py"]
