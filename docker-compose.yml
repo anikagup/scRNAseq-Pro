@@ -1,15 +1,19 @@
 version: "3.12"
 
 services:
+  services:
   backend:
-    build: .
-    container_name: scrna-backend
+    build: ./backend
     volumes:
-      - ./data:/app/data  # Mount local data directory into the container
-      - ./results:/app/results  # Save results outside the container
-    command: ["python", "src/main.py"]  # Runs the pipeline
-    depends_on:
-      - web  # Ensure web interface runs after backend processing
+      - ./data:/app/data
+    command: ["python", "src/main.py"]
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:8000"
+    command: ["shiny", "run", "--port", "8000", "app.py"]
+
 
   web:
     build: .

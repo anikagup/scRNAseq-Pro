@@ -18,7 +18,9 @@ sc.tl.rank_genes_groups(adata, groupby="leiden", method="wilcoxon")
 sc.pl.rank_genes_groups(adata, n_genes=num_degs, sharey=False)
 
 # Save DEGs to CSV
-degs = sc.get.rank_genes_groups_df(adata, group="all")
-degs.to_csv("data/differential_expression_results.csv", index=False)
+for cluster in adata.obs["leiden"].cat.categories:
+    df = sc.get.rank_genes_groups_df(adata, group=cluster)
+    df.to_csv(f"data/degs_cluster_{cluster}.csv", index=False)
+
 
 print("Differential expression analysis completed and results saved.")

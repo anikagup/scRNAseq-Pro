@@ -1,38 +1,60 @@
 import json
 import scanpy as sc
 import os
+
 from preprocessing import preprocess_data, load_data
 
-# Load configuration
-with open("config.json", "r") as config_file:
+# Dynamically find the root directory
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Correct path to config.json
+CONFIG_PATH = os.path.join(ROOT_DIR, "config.json")
+
+print(f"📂 Looking for config.json at: {CONFIG_PATH}")  # Debugging print
+
+# Load config.json safely
+if not os.path.exists(CONFIG_PATH):
+    raise FileNotFoundError(f"❌ ERROR: config.json not found at {CONFIG_PATH}")
+
+with open(CONFIG_PATH, "r") as config_file:
     config = json.load(config_file)
 
-input_file = config.get("input_file", "data/sample_data.h5")
-file_type = config.get("file_type", "auto")
+print(f"✅ Loaded config from: {CONFIG_PATH}")
+
+input_file = config.get("input_file", "data/pbmc3k.h5ad")
+file_type = config.get("file_type", "h5ad")
 params = config.get("preprocessing_params", {})
 
-# Load and preprocess data
+print("📂 Loading dataset...")
 adata = load_data(input_file, file_type)
-if adata is not None:
-    adata = preprocess_data(adata, params)
 
-    # Run Leiden clustering for visualization
-    sc.tl.leiden(adata, resolution=config.get("differential_expression", {}).get("resolution", 0.5))
-    
-    # Identify default metadata & gene-based UMAP coloring options
-    umap_features = ["leiden", "total_counts", "pct_counts_mt", "n_genes_by_counts"]
-    umap_features += list(adata.var_names[:5])  # Add first 5 genes
+if adata is None:
+    print("❌ ERROR: No valid data loaded. Exiting.")
+    exit(1)
 
-    # Update config.json with available UMAP colors
-    config["visualization"]["umap_colors"] = umap_features
-    with open("config.json", "w") as config_file:
-        json.dump(config, config_file, indent=4)
+print(f"✅ Data loaded! Shape: {adata.shape}")  # Debugging step
 
-    # Save processed dataset
-    os.makedirs("data", exist_ok=True)
-    adata.write("data/processed_data.h5ad")
+# Preprocess data
+print("🔄 Running preprocessing...")
+adata = preprocess_data(adata, params)
+print("✅ Preprocessing complete!")
 
-    print("Preprocessing complete! Processed data saved to 'data/processed_data.h5ad'")
-    print(f"Available UMAP color options: {umap_features}")
-else:
-    print("No valid data loaded.")
+# Perform clustering & UMAP
+print("🔄 Running Leiden clustering...")
+sc.tl.leiden(adata, resolution=config.get("differential_expression", {}).get("resolution", 0.5))
+print("✅ Leiden clustering complete!")
+
+print("🔄 Running PCA & Neighbors...")
+sc.tl.pca(adata, svd_solver='arpack')  # Ensure PCA is computed
+sc.pp.neighbors(adata, n_neighbors=params.get("n_neighbors", 10), n_pcs=params.get("n_pcs", 40))
+print("✅ PCA & neighbors computed!")
+
+print("🔄 Running UMAP...")
+sc.tl.umap(adata)
+print("✅ UMAP computation complete!")
+
+# Save processed data
+os.makedirs("data", exist_ok=True)
+adata.write("data/processed_data.h5ad")
+print("✅ Processed data saved to 'data/processed_data.h5ad'")
+
