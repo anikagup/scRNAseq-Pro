@@ -1,6 +1,6 @@
 {
-    "input_file": "data/sample_data.h5",
-    "file_type": "auto",
+    "input_file": "https://singlecell.broadinstitute.org/single_cell/study/SCP1824/murine-lung-and-lymph-node-dendritic-cells#study-download",
+    "file_type": "csv",
     "preprocessing_params": {
         "min_genes": 300,
         "min_cells": 5,
