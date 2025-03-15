@@ -1,5 +1,5 @@
 {
-    "input_file": "https://singlecell.broadinstitute.org/single_cell/study/SCP1824/murine-lung-and-lymph-node-dendritic-cells#study-download",
+    "input_file": "/Users/anika/Desktop/BME 405/scRNAseq Project/scRNA-seq-Automation/scRNA-seq-Automation/src/data/GSM3832735_wt_naive_gex.csv",
     "file_type": "csv",
     "preprocessing_params": {
         "min_genes": 300,
