@@ -5,7 +5,7 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-# Dynamically find the root directory
+""" # Dynamically find the root directory
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Correct path to config.json
@@ -24,7 +24,7 @@ print(f"✅ Loaded config in preprocessing from: {CONFIG_PATH}")
 
 # Define file paths
 input_file = config.get("input_file", "data/input_file")
-file_type = config.get("file_type", "auto")
+file_type = config.get("file_type", "auto") """
 
 # Load data based on file type
 def load_data(file, file_type):
@@ -68,11 +68,11 @@ def preprocess_data(adata, params):
     sc.tl.umap(adata)
     return adata
 
-# Main execution
+""" # Main execution
 params = config.get("preprocessing_params", {})
 #adata = load_data(input_file, file_type)
 adata=sc.datasets.pbmc3k()
-adata.write("data/pbmc3k.h5ad")
+adata.write("data/pbmc3k.h5ad") """
 """ if adata is not None:
     adata = preprocess_data(adata, params)
     sc.pl.umap(adata, color='CST3')

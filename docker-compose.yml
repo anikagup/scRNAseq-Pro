@@ -1,25 +1,17 @@
-version: "3.12"
+version: "3.10"
 
 services:
-  services:
   backend:
-    build: ./backend
+    build: .
+    container_name: scrna-backend
     volumes:
       - ./data:/app/data
     command: ["python", "src/main.py"]
 
   frontend:
-    build: ./frontend
+    build: ./UI
     ports:
       - "8000:8000"
     command: ["shiny", "run", "--port", "8000", "app.py"]
-
-
-  web:
-    build: .
-    container_name: scrna-web
-    ports:
-      - "8501:8501"  # Expose PyShiny (or Streamlit) frontend
-    command: ["python", "src/app.py"]  # Runs PyShiny app
     depends_on:
-      - backend  # Wait for backend to be ready
+      - backend
