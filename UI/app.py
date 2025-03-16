@@ -7,7 +7,7 @@ import subprocess
 app_ui = ui.page_fluid(
     ui.tags.style("body { background-color: lightblue; }"),
     ui.panel_title("Welcome to RNA Pro"),
-    ui.input_file("file_upload", "Please Upload Your FASTQ File", multiple=False, accept=[".fastq"]),
+    ui.input_file("file_upload", "Please Upload Your FASTQ/h5/csv File", multiple=False, accept=[".fastq",".h5",".csv"]),
     ui.output_text("file_info"),
     ui.output_ui("buttons"),
     ui.output_ui("axis_inputs"),  # Inputs for axis customization
