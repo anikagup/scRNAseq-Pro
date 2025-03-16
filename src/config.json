@@ -1,24 +1,25 @@
 {
-    "input_file": "/Users/anika/Desktop/BME 405/scRNAseq Project/scRNA-seq-Automation/scRNA-seq-Automation/src/data/GSM3832735_wt_naive_gex.csv",
-    "file_type": "csv",
+    "input_file": "data/pbmc3k.h5ad",
+    "file_type": "h5ad",
     "preprocessing_params": {
-        "min_genes": 300,
-        "min_cells": 5,
+        "min_genes": 200,
+        "min_cells": 3,
         "target_sum": 10000,
-        "n_top_genes": 2500,
+        "n_top_genes": 2000,
         "max_value": 10,
-        "n_neighbors": 15,
-        "n_pcs": 30
+        "n_neighbors": 10,
+        "n_pcs": 40
     },
     "differential_expression": {
         "resolution": 0.5,
         "num_degs": 25
     },
-
     "visualization": {
-    "umap_colors": ["leiden", "total_counts", "pct_counts_mt"],
-    "custom_genes": []
-}
-
-
+        "umap_colors": [
+            "leiden",
+            "total_counts",
+            "pct_counts_mt"
+        ],
+        "custom_genes": []
+    }
 }

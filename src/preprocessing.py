@@ -5,13 +5,26 @@ import os
 import json
 import matplotlib.pyplot as plt
 
-# Load configuration from config.json
-with open("config.json", "r") as config_file:
+""" # Dynamically find the root directory
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+# Correct path to config.json
+CONFIG_PATH = os.path.join(ROOT_DIR, "config.json")
+
+print(f"📂 Looking for config.json at: {CONFIG_PATH}")  # Debugging print
+
+# Load config.json safely
+if not os.path.exists(CONFIG_PATH):
+    raise FileNotFoundError(f"❌ ERROR: for preprocessing config.json not found at {CONFIG_PATH}")
+
+with open(CONFIG_PATH, "r") as config_file:
     config = json.load(config_file)
+
+print(f"✅ Loaded config in preprocessing from: {CONFIG_PATH}")
 
 # Define file paths
 input_file = config.get("input_file", "data/input_file")
-file_type = config.get("file_type", "auto")
+file_type = config.get("file_type", "auto") """
 
 # Load data based on file type
 def load_data(file, file_type):
@@ -21,11 +34,13 @@ def load_data(file, file_type):
         adata = sc.read_loom(file)
     elif file_type == "h5ad" or (file_type == "auto" and file.endswith(".h5ad")):
         adata = sc.read_h5ad(file)
-    elif file_type in ["csv", "txt"] or (file_type == "auto" and (file.endswith(".csv") or file.endswith(".txt"))):
-        adata = sc.read_text(file)
+    elif file_type in ["csv", "txt"] or (file_type == "auto" and file.endswith(".csv")):
+        df = pd.read_csv(file, index_col=0)
+        adata = sc.AnnData(df.T)  # Transpose to match scRNA-seq format
     else:
         raise ValueError("Unsupported file type.")
     return adata
+
 
 # Function to calculate QC metrics and generate plots
 def generate_qc_metrics(adata):
@@ -34,7 +49,7 @@ def generate_qc_metrics(adata):
     
     # Generate violin plots for QC metrics
     sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, save="_qc_metrics.png")
-    
+    ## Maybe make this three separate figs 
     print("QC metrics calculated and violin plots saved as '_qc_metrics.png'")
 
 # Preprocessing function
@@ -53,12 +68,14 @@ def preprocess_data(adata, params):
     sc.tl.umap(adata)
     return adata
 
-# Main execution
+""" # Main execution
 params = config.get("preprocessing_params", {})
-adata = load_data(input_file, file_type)
-if adata is not None:
+#adata = load_data(input_file, file_type)
+adata=sc.datasets.pbmc3k()
+adata.write("data/pbmc3k.h5ad") """
+""" if adata is not None:
     adata = preprocess_data(adata, params)
     sc.pl.umap(adata, color='CST3')
     adata.write("data/processed_data.h5ad")
 else:
-    print("No valid data loaded.")
+    print("No valid data loaded.") """
