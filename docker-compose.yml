@@ -1,4 +1,3 @@
-version: "3.10"
 
 services:
   backend:
@@ -9,9 +8,10 @@ services:
     command: ["python", "src/main.py"]
 
   frontend:
-    build: ./UI
+    build: .
+    container_name: scrna-frontend
     ports:
       - "8000:8000"
-    command: ["shiny", "run", "--port", "8000", "app.py"]
+    command: ["shiny", "run", "--port", "8000", "UI/app.py"]
     depends_on:
       - backend

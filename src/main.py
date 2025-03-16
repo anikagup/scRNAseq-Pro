@@ -3,6 +3,8 @@ import scanpy as sc
 import os
 
 from preprocessing import preprocess_data, load_data
+from analysis import generate_umap, perform_differential_expression
+
 
 import os
 import json
@@ -48,22 +50,13 @@ print("🔄 Running preprocessing...")
 adata = preprocess_data(adata, params)
 print("✅ Preprocessing complete!")
 
-# Perform clustering & UMAP
-print("🔄 Running Leiden clustering...")
-sc.tl.leiden(adata, resolution=config.get("differential_expression", {}).get("resolution", 0.5))
-print("✅ Leiden clustering complete!")
+# Generate UMAPs and perform clustering
+generate_umap(adata, config)
 
-print("🔄 Running PCA & Neighbors...")
-sc.tl.pca(adata, svd_solver='arpack')  # Ensure PCA is computed
-sc.pp.neighbors(adata, n_neighbors=params.get("n_neighbors", 10), n_pcs=params.get("n_pcs", 40))
-print("✅ PCA & neighbors computed!")
-
-print("🔄 Running UMAP...")
-sc.tl.umap(adata)
-print("✅ UMAP computation complete!")
+# Perform differential gene expression analysis
+perform_differential_expression(adata, config)
 
 # Save processed data
 os.makedirs("data", exist_ok=True)
 adata.write("data/processed_data.h5ad")
 print("✅ Processed data saved to 'data/processed_data.h5ad'")
-
