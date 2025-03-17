@@ -6,8 +6,11 @@ import json
 import scanpy as sc
 
 # Load configuration
-config_path = "src/config.json"
-with open(config_path, "r") as f:
+# Get the absolute path to the root of the project
+project_root = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
+# Build the path to config.json
+config_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'config.json')
+with open(config_path, 'r') as f:
     config = json.load(f)
 
 # Define the UI layout
