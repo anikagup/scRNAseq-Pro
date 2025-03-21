@@ -106,28 +106,6 @@ def server(input, output, session):
             return f"File Saved: {abs_path} (Type: {file_type})"
 
         return "Error saving file."
-    # @output
-    # @render.text
-    # def file_info():
-    #     file = input.file_upload()
-    #     if file is None:
-    #         return "No file uploaded."
-
-    #     saved_path = save_uploaded_file()  # Ensure this returns a valid path
-    #     print("Saved File Path:", saved_path)
-
-    #     if saved_path:
-    #         # Convert to absolute path
-    #         abs_path = os.path.abspath(saved_path)
-
-    #         # Update config.json
-    #         config["input_file"] = abs_path
-    #         with open(config_path, "w") as f:
-    #             json.dump(config, f, indent=4)
-
-    #         return f"File Saved: {abs_path}"
-
-    #     return "Error saving file."
     
     # Function to re-run preprocessing with new QC thresholds
 
