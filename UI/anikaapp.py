@@ -5,11 +5,15 @@ import subprocess
 import json
 import scanpy as sc
 
+# Print statement to confirm app start
+print("App is starting...")
+
 # Load configuration
 # Get the absolute path to the root of the project
 project_root = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
-# Build the path to config.json
+print(project_root)
 config_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'config.json')
+print(config_path)
 with open(config_path, 'r') as f:
     config = json.load(f)
 
@@ -27,6 +31,7 @@ app_ui = ui.page_fluid(
     ),
 
     ui.output_text("file_info"),
+    ui.input_action_button("activate_button_ui", "Run analysis"),  
 
     # QC Parameter Inputs
     ui.h3("Modify QC Metrics"),
@@ -75,6 +80,19 @@ def server(input, output, session):
 
             return f"File Saved: {saved_path}"
         return "Error saving file."
+    # Function to re-run preprocessing with new QC thresholds
+
+    @reactive.effect
+    @reactive.event(input.activate_button_ui)
+    def activate_analysis():
+        # Run the main.py script in the 'src' directory
+        script_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'main.py')
+        try:
+            subprocess.run(['python', script_path], check=True)  # Run the script
+            print("main.py has been executed successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error running main.py: {e}")        
+ 
 
     @output
     @render.text
