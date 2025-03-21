@@ -10,7 +10,7 @@ print("App is starting...")
 
 # Load configuration
 # Get the absolute path to the root of the project
-project_root = os.path.abspath(os.path.join(os.getcwd(), '..'))
+project_root = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
 print(project_root)
 config_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'config.json')
 print(config_path)

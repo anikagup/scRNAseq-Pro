@@ -1,5 +1,5 @@
 {
-    "input_file": "data/pbmc3k.h5ad",
+    "input_file": "src/data/pbmc3k.h5ad",
     "file_type": "h5ad",
     "preprocessing_params": {
         "min_genes": 200,

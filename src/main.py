@@ -28,12 +28,12 @@ print(f"✅ Loaded config from: {CONFIG_PATH}")
 
 
 # Define file paths
-input_file = config.get("input_file", "data/input_file")
+input_file = config.get("input_file", "src/data/input_file")
 file_type = config.get("file_type", "auto")
 
 
-input_file = config.get("input_file", "data/pbmc3k.h5ad")
-file_type = config.get("file_type", "h5ad")
+# input_file = config.get("input_file", "data/pbmc3k.h5ad")
+# file_type = config.get("file_type", "h5ad")
 params = config.get("preprocessing_params", {})
 
 print("📂 Loading dataset...")
