@@ -58,11 +58,18 @@ def server(input, output, session):
     def save_uploaded_file():
         file = input.file_upload()
         if file:
+            base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
+            upload_dir = os.path.join(base_dir, "UI/uploads")
+
+            os.makedirs(upload_dir, exist_ok=True)  # Create folder if it doesn't exist
+
             temp_path = file[0]["datapath"]
             saved_path = os.path.join(upload_dir, file[0]["name"])
             shutil.move(temp_path, saved_path)
             return saved_path
         return None
+    config_path = "src/config.json"
+
 
     @output
     @render.text
@@ -70,16 +77,58 @@ def server(input, output, session):
         file = input.file_upload()
         if file is None:
             return "No file uploaded."
-        
-        saved_path = save_uploaded_file()
+
+        saved_path = save_uploaded_file()  # Ensure this returns a valid path
+        print("Saved File Path:", saved_path)
+
         if saved_path:
+            # Convert to absolute path
+            abs_path = os.path.abspath(saved_path)
+
+            # Determine file type based on extension
+            if saved_path.endswith(".csv" or ".txt"):
+                file_type = "csv"
+            elif saved_path.endswith(".h5ad"):
+                file_type = "h5ad"
+            elif saved_path.endswith(".loom"):
+                file_type = "loom"
+            elif saved_path.endswith(".h5"):
+                file_type = "10x"
+            else:
+                file_type = "unknown"  # Handle other cases
+
             # Update config.json
-            config["input_file"] = saved_path
+            config["input_file"] = abs_path
+            config["file_type"] = file_type  # Update file type
             with open(config_path, "w") as f:
                 json.dump(config, f, indent=4)
 
-            return f"File Saved: {saved_path}"
+            return f"File Saved: {abs_path} (Type: {file_type})"
+
         return "Error saving file."
+    # @output
+    # @render.text
+    # def file_info():
+    #     file = input.file_upload()
+    #     if file is None:
+    #         return "No file uploaded."
+
+    #     saved_path = save_uploaded_file()  # Ensure this returns a valid path
+    #     print("Saved File Path:", saved_path)
+
+    #     if saved_path:
+    #         # Convert to absolute path
+    #         abs_path = os.path.abspath(saved_path)
+
+    #         # Update config.json
+    #         config["input_file"] = abs_path
+    #         with open(config_path, "w") as f:
+    #             json.dump(config, f, indent=4)
+
+    #         return f"File Saved: {abs_path}"
+
+    #     return "Error saving file."
+    
     # Function to re-run preprocessing with new QC thresholds
 
     @reactive.effect
