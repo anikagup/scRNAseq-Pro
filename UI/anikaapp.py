@@ -46,7 +46,7 @@ app_ui = ui.page_fluid(
     ui.h3("Visualize UMAP"),
     ui.input_text("gene_input", "Enter Genes (comma-separated):", placeholder="E.g., CST3, NKG7"),
     ui.input_action_button("update_umap", "Generate UMAP"),
-    ui.output_image("umap_plot"),
+    ui.output_image("umap_plot"), 
 )
 
 def server(input, output, session):
@@ -169,3 +169,10 @@ def server(input, output, session):
         return {"src": save_path, "height": "500px"}
 
 app = App(app_ui, server)
+
+
+
+# delete figures everytime it regenerates
+# displaying 4 figures 
+# delete csv everytime
+# display the first 10 genes on csv

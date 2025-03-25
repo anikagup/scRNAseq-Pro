@@ -1,6 +1,6 @@
 {
-    "input_file": "/Users/anika/Desktop/BME 405/scRNAseq Project/scRNA-seq-Automation/UI/uploads/pbmc3k.h5ad",
-    "file_type": "h5ad",
+    "input_file": "/Users/tarakhan/Desktop/Senior year/405project/scRNA-seq-Automation/UI/uploads/GSM3832735_wt_naive_gex.csv",
+    "file_type": "csv",
     "preprocessing_params": {
         "min_genes": 200,
         "min_cells": 3,
