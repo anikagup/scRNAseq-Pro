@@ -1,7 +1,8 @@
 import scanpy as sc
 import json
 import os
-
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import rc_context
 
 # Function to perform clustering & generate UMAP
 def generate_umap(adata, config):
@@ -23,13 +24,17 @@ def generate_umap(adata, config):
     os.makedirs("figures", exist_ok=True)
 
     # Default UMAP plots
-    umap_features = ["leiden", "total_counts", "pct_counts_mt", "n_genes_by_counts"]
-    umap_features += list(adata.var_names[:5])  # Add first 5 genes for visualization
+    sc.pl.umap(adata, color=["leiden", "total_counts", "n_genes_by_counts"], wspace=0.4, save=f"umap_qc.png")
 
-    for feature in umap_features:
-        sc.pl.umap(adata, color=feature, save=f"_umap_{feature}.png")
+    color_genes = list(adata.var_names[:5])
+    with rc_context({"figure.figsize": (5, 1)}):
+        sc.pl.umap(adata, color=color_genes, s=50, frameon=False, ncols=4, vmax="p99")
+    #sc.pl.umap(adata, list(adata.var_names[:5]), save=f"genes_umap.png")  # Add first 5 genes for visualization
 
-    print(f"✅ UMAP plots saved for features: {umap_features}")
+    #for feature in umap_features:
+        #sc.pl.umap(adata, color=feature, save=f"_umap_{feature}.png")
+
+    print(f"✅ UMAP plots saved")
 
 # Function to perform differential gene expression analysis
 def perform_differential_expression(adata, config):

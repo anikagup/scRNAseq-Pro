@@ -4,6 +4,7 @@ import numpy as np
 import os
 import json
 import matplotlib.pyplot as plt
+import scrublet as scr
 
 """ # Dynamically find the root directory
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -58,14 +59,19 @@ def preprocess_data(adata, params):
     
     sc.pp.filter_cells(adata, min_genes=params.get("min_genes", 200))
     sc.pp.filter_genes(adata, min_cells=params.get("min_cells", 3))
+    print("Filtering is done")
     sc.pp.normalize_total(adata, target_sum=params.get("target_sum", 1e4))
     sc.pp.log1p(adata)
+    print("Normalization is done")
     sc.pp.highly_variable_genes(adata, n_top_genes=params.get("n_top_genes", 2000))
+    print("Highly variable genes have been found")
     adata = adata[:, adata.var["highly_variable"]]
     sc.pp.scale(adata, max_value=params.get("max_value", 10))
     sc.tl.pca(adata, svd_solver='arpack')
+    print("Done w/ PCA")
     sc.pp.neighbors(adata, n_neighbors=params.get("n_neighbors", 10), n_pcs=params.get("n_pcs", 40))
     sc.tl.umap(adata)
+    print("Done w/ UMAP")
     return adata
 
 """ # Main execution
