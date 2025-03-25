@@ -1,6 +1,6 @@
 {
-    "input_file": "/Users/tarakhan/Desktop/Senior year/405project/scRNA-seq-Automation/UI/uploads/GSM3832735_wt_naive_gex.csv",
-    "file_type": "csv",
+    "input_file": "",
+    "file_type": "",
     "preprocessing_params": {
         "min_genes": 200,
         "min_cells": 3,
