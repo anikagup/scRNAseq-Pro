@@ -61,7 +61,10 @@ def server(input, output, session):
             base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
             upload_dir = os.path.join(base_dir, "UI/uploads")
 
-            os.makedirs(upload_dir, exist_ok=True)  # Create folder if it doesn't exist
+            # Clear the uploads folder
+            if os.path.exists(upload_dir):
+                shutil.rmtree(upload_dir)  # Delete the folder and its contents
+            os.makedirs(upload_dir, exist_ok=True)  # Recreate the folder
 
             temp_path = file[0]["datapath"]
             saved_path = os.path.join(upload_dir, file[0]["name"])
