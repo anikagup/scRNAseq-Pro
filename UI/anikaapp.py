@@ -139,7 +139,6 @@ def server(input, output, session):
 
         with open(config_path, "w") as f:
             json.dump(config, f, indent=4)
-
         subprocess.run(["python", "src/main.py"])
         session.send_notification("info", "Reprocessing complete!")
 
@@ -171,8 +170,6 @@ def server(input, output, session):
 app = App(app_ui, server)
 
 
-
-# delete figures everytime it regenerates
 # displaying 4 figures 
 # delete csv everytime
 # display the first 10 genes on csv

@@ -3,6 +3,7 @@ import json
 import os
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rc_context
+import shutil
 
 # Function to perform clustering & generate UMAP
 def generate_umap(adata, config):
@@ -21,7 +22,15 @@ def generate_umap(adata, config):
     print("✅ UMAP computation complete!")
 
     # Generate and save UMAP plots
-    os.makedirs("figures", exist_ok=True)
+    figures_dir = "figures"
+
+    # Check if the directory exists
+    if os.path.exists(figures_dir):
+        # Delete the directory and all its contents
+        shutil.rmtree(figures_dir)
+
+    # Recreate the directory
+    os.makedirs(figures_dir, exist_ok=True)
 
     # Default UMAP plots
     sc.pl.umap(adata, color=["leiden", "total_counts", "n_genes_by_counts"], wspace=0.4, save=f"umap_qc.png")
