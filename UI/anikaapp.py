@@ -16,7 +16,8 @@ config_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'config.
 print(config_path)
 with open(config_path, 'r') as f:
     config = json.load(f)
-
+datapath = os.path.join(project_root, 'scRNA-seq-Automation', 'data')
+shutil.rmtree(datapath) # clearing csv files from data foldering everytime shiny is run
 # Define the UI layout
 app_ui = ui.page_fluid(
     ui.tags.style("body { background-color: lightblue; }"),
@@ -171,5 +172,4 @@ app = App(app_ui, server)
 
 
 # displaying 4 figures 
-# delete csv everytime
 # display the first 10 genes on csv
