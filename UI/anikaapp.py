@@ -16,8 +16,8 @@ config_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'config.
 print(config_path)
 with open(config_path, 'r') as f:
     config = json.load(f)
-datapath = os.path.join(project_root, 'scRNA-seq-Automation', 'data')
-shutil.rmtree(datapath) # clearing csv files from data foldering everytime shiny is run
+
+
 # Define the UI layout
 app_ui = ui.page_fluid(
     ui.tags.style("body { background-color: lightblue; }"),
@@ -116,6 +116,14 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.activate_button_ui)
     def activate_analysis():
+        # clearing csv files everytime analysis is pressed
+        datapath = os.path.join(project_root, 'scRNA-seq-Automation', 'data')
+        if os.path.exists(datapath):
+            shutil.rmtree(datapath) 
+        # clearing figures everytime analysis is pressed
+        figurepath = os.path.join(project_root, 'scRNA-seq-Automation', 'figures')
+        if os.path.exists(figurepath):
+            shutil.rmtree(figurepath) 
         # Run the main.py script in the 'src' directory
         script_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'main.py')
         try:
