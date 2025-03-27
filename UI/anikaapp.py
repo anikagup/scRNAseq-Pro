@@ -32,7 +32,15 @@ app_ui = ui.page_fluid(
     ),
 
     ui.output_text("file_info"),
-    ui.input_action_button("activate_button_ui", "Run analysis"),  
+    ui.input_action_button("activate_button_ui", "Run analysis"),
+    ui.h3("Violin QC"),
+    ui.output_image("displayed_image1"),
+    ui.h3("UMAP QC"),
+    ui.output_image("displayed_image2"),   
+    ui.h3("UMAP Top 5"),
+    ui.output_image("displayed_image3"), 
+    ui.h3("Ranked Genes"),
+    ui.output_image("displayed_image4"), 
 
     # QC Parameter Inputs
     ui.h3("Modify QC Metrics"),
@@ -130,8 +138,40 @@ def server(input, output, session):
             subprocess.run(['python', script_path], check=True)  # Run the script
             print("main.py has been executed successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"Error running main.py: {e}")        
- 
+            print(f"Error running main.py: {e}")    
+
+    @output
+    @render.image
+    @reactive.event(input.activate_button_ui)
+    def displayed_image1():
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'violin_qc_metrics.png')
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "400px"}  # Return image with height setting
+        return None  # Return None if image is not found
+    @output
+    @render.image
+    @reactive.event(input.activate_button_ui)
+    def displayed_image2():
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_qc.png')
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "200px"}  # Return image with height setting
+        return None  # Return None if image is not found
+    @output
+    @render.image
+    @reactive.event(input.activate_button_ui)
+    def displayed_image3():
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_top5.png')
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "200px"}  # Return image with height setting
+        return None  # Return None if image is not found
+    @output
+    @render.image
+    @reactive.event(input.activate_button_ui)
+    def displayed_image4():
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'rank_genes_groups_leiden.png')
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "400px"}  # Return image with height setting
+        return None  # Return None if image is not found
 
     @output
     @render.text
