@@ -8,6 +8,7 @@ venv/
 data/*.h5ad
 data/*.csv
 figures
+data
 
 # Ignore Python cache
 __pycache__/
