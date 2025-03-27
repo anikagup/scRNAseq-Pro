@@ -24,20 +24,15 @@ def generate_umap(adata, config):
     # Generate and save UMAP plots
     figures_dir = "figures"
 
-    # Check if the directory exists
-    if os.path.exists(figures_dir):
-        # Delete the directory and all its contents
-        shutil.rmtree(figures_dir)
-
     # Recreate the directory
     os.makedirs(figures_dir, exist_ok=True)
 
     # Default UMAP plots
-    sc.pl.umap(adata, color=["leiden", "total_counts", "n_genes_by_counts"], wspace=0.4, save=f"umap_qc.png")
+    sc.pl.umap(adata, color=["leiden", "total_counts", "n_genes_by_counts"], wspace=0.4, save=f"_qc.png")
 
     color_genes = list(adata.var_names[:5])
     with rc_context({"figure.figsize": (5, 1)}):
-        sc.pl.umap(adata, color=color_genes, s=50, frameon=False, ncols=4, vmax="p99")
+        sc.pl.umap(adata, color=color_genes, s=50, frameon=False, ncols=4, vmax="p99", save=f"_top5.png")
     #sc.pl.umap(adata, list(adata.var_names[:5]), save=f"genes_umap.png")  # Add first 5 genes for visualization
 
     #for feature in umap_features:
@@ -49,7 +44,7 @@ def generate_umap(adata, config):
 def perform_differential_expression(adata, config):
     num_degs = config.get("differential_expression", {}).get("num_degs", 20)
     sc.tl.rank_genes_groups(adata, groupby="leiden", method="wilcoxon")
-    sc.pl.rank_genes_groups(adata, n_genes=num_degs, sharey=False)
+    sc.pl.rank_genes_groups(adata, n_genes=num_degs, sharey=False, save =f".png" )
 
     # Save DEGs to CSV
 
