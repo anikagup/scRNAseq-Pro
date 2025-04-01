@@ -219,5 +219,4 @@ def server(input, output, session):
 app = App(app_ui, server)
 
 
-# displaying 4 figures 
 # display the first 10 genes on csv
