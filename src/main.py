@@ -28,7 +28,13 @@ print(f"✅ Loaded config from: {CONFIG_PATH}")
 
 
 # Define file paths
-input_file = config.get("input_file", "src/data/input_file")
+input_file = config.get("input_file", "uploads/latest.csv")
+
+if not os.path.exists(input_file):
+    print(f"⚠️ Input file '{input_file}' not found.")
+    print("💡 Please upload a valid input file via the UI.")
+    exit(1)  # Exit gracefully to avoid Docker crash
+
 file_type = config.get("file_type", "auto")
 
 

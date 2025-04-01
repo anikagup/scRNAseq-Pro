@@ -16,3 +16,6 @@ __pycache__/
 results/
 .env
 
+uploads/*
+!uploads/.gitkeep
+

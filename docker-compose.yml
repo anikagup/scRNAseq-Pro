@@ -4,7 +4,7 @@ services:
     build: .
     container_name: scrna-backend
     volumes:
-      - ./data:/app/data
+      - ./uploads:/app/uploads
     command: ["python", "src/main.py"]
 
   frontend:
@@ -12,6 +12,8 @@ services:
     container_name: scrna-frontend
     ports:
       - "8000:8000"
-    command: ["shiny", "run", "--port", "8000", "UI/app.py"]
+    volumes:
+      - ./uploads:/app/uploads
+    command: ["shiny", "run", "--port", "8000", "UI/anikaapp.py"]
     depends_on:
       - backend

@@ -80,10 +80,73 @@ def server(input, output, session):
             shutil.move(temp_path, saved_path)
             return saved_path
         return None
-    config_path = "src/config.json"
 
+
+    # Supported file extensions
+    ALLOWED_EXTENSIONS = {
+        ".h5": "10x",
+        ".loom": "loom",
+        ".h5ad": "h5ad",
+        ".csv": "csv",
+        ".txt": "txt"
+    }
+
+    def save_uploaded_file():
+        file = input.file_upload()
+        if not file:
+            return None
+
+        # Project root and paths
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        upload_dir = os.path.join(base_dir, "uploads")  # <== NOT UI/uploads anymore
+        config_path = os.path.join(base_dir, "src", "config.json")
+
+        # Get extension
+        uploaded_name = file[0]["name"]
+        uploaded_ext = os.path.splitext(uploaded_name)[1]
+
+        if uploaded_ext not in ALLOWED_EXTENSIONS:
+            print(f"❌ Unsupported file type: {uploaded_ext}")
+            return None
+
+        # Reset uploads folder
+        if os.path.exists(upload_dir):
+            shutil.rmtree(upload_dir)
+        os.makedirs(upload_dir, exist_ok=True)
+
+        # Save with a standard name (e.g., uploads/latest.h5ad)
+        temp_path = file[0]["datapath"]
+        save_path = os.path.join(upload_dir, f"latest{uploaded_ext}")
+        shutil.move(temp_path, save_path)
+
+        # Update config.json
+        try:
+            with open(config_path, "r") as f:
+                config = json.load(f)
+        except FileNotFoundError:
+            config = {}
+
+        config["input_file"] = f"uploads/latest{uploaded_ext}"
+        config["file_type"] = ALLOWED_EXTENSIONS[uploaded_ext]
+
+        with open(config_path, "w") as f:
+            json.dump(config, f, indent=4)
+
+        print(f"✅ File saved to: {save_path}")
+        print(f"✅ config.json updated.")
+
+        return save_path
 
     @output
+    @render.text
+    def file_info():
+        saved_path = save_uploaded_file()
+        if saved_path:
+            return f"✅ File saved and config updated: {saved_path}"
+        return "❌ File upload failed or unsupported format."
+
+
+    """ @output
     @render.text
     def file_info():
         file = input.file_upload()
@@ -117,7 +180,7 @@ def server(input, output, session):
 
             return f"File Saved: {abs_path} (Type: {file_type})"
 
-        return "Error saving file."
+        return "Error saving file." """
     
     # Function to re-run preprocessing with new QC thresholds
 
