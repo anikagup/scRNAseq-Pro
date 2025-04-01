@@ -49,7 +49,7 @@ def generate_qc_metrics(adata):
     sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
     
     # Generate violin plots for QC metrics
-    sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, save="_qc_metrics.png")
+    sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'], jitter=0.4, multi_panel=True, save="_qc_metrics.png", show = False)
     ## Maybe make this three separate figs 
     print("QC metrics calculated and violin plots saved as '_qc_metrics.png'")
 
