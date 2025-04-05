@@ -57,16 +57,16 @@ def generate_qc_metrics(adata):
 def preprocess_data(adata, params):
     generate_qc_metrics(adata)  # Calculate QC metrics before preprocessing
     
-    sc.pp.filter_cells(adata, min_genes=params.get("min_genes", 200))
-    sc.pp.filter_genes(adata, min_cells=params.get("min_cells", 3))
+    sc.pp.filter_cells(adata, min_genes=params.get("min_genes", 200)) #Changeable
+    sc.pp.filter_genes(adata, min_cells=params.get("min_cells", 3)) #Changeable
     print("Filtering is done")
     sc.pp.normalize_total(adata, target_sum=params.get("target_sum", 1e4))
     sc.pp.log1p(adata)
     print("Normalization is done")
-    sc.pp.highly_variable_genes(adata, n_top_genes=params.get("n_top_genes", 2000))
+    sc.pp.highly_variable_genes(adata, n_top_genes=params.get("n_top_genes", 2000)) #Changeable
     print("Highly variable genes have been found")
     adata = adata[:, adata.var["highly_variable"]]
-    sc.pp.scale(adata, max_value=params.get("max_value", 10))
+    sc.pp.scale(adata, max_value=params.get("max_value", 10)) #Download CSV of count matrix
     sc.tl.pca(adata, svd_solver='arpack')
     print("Done w/ PCA")
     sc.pp.neighbors(adata, n_neighbors=params.get("n_neighbors", 10), n_pcs=params.get("n_pcs", 40))
