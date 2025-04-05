@@ -17,7 +17,6 @@ print(config_path)
 with open(config_path, 'r') as f:
     config = json.load(f)
 
-
 # Define the UI layout
 app_ui = ui.page_fluid(
     ui.tags.style("body { background-color: lightblue; }"),
@@ -70,17 +69,12 @@ def server(input, output, session):
             base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
             upload_dir = os.path.join(base_dir, "UI/uploads")
 
-            # Clear the uploads folder
-            if os.path.exists(upload_dir):
-                shutil.rmtree(upload_dir)  # Delete the folder and its contents
-            os.makedirs(upload_dir, exist_ok=True)  # Recreate the folder
-
+            # Save the uploaded file to the uploads folder
             temp_path = file[0]["datapath"]
             saved_path = os.path.join(upload_dir, file[0]["name"])
             shutil.move(temp_path, saved_path)
             return saved_path
         return None
-
 
     # Supported file extensions
     ALLOWED_EXTENSIONS = {
@@ -108,11 +102,6 @@ def server(input, output, session):
         if uploaded_ext not in ALLOWED_EXTENSIONS:
             print(f"❌ Unsupported file type: {uploaded_ext}")
             return None
-
-        # Reset uploads folder
-        if os.path.exists(upload_dir):
-            shutil.rmtree(upload_dir)
-        os.makedirs(upload_dir, exist_ok=True)
 
         # Save with a standard name (e.g., uploads/latest.h5ad)
         temp_path = file[0]["datapath"]
@@ -145,56 +134,28 @@ def server(input, output, session):
             return f"✅ File saved and config updated: {saved_path}"
         return "❌ File upload failed or unsupported format."
 
+    # Function to clear uploads folder when app is run
+    def clear_uploads_folder():
+        upload_dir = os.path.join(os.getcwd(), 'uploads')
+        if os.path.exists(upload_dir):
+            shutil.rmtree(upload_dir)  # Delete the folder and its contents
+        os.makedirs(upload_dir, exist_ok=True)  # Recreate the folder
 
-    """ @output
-    @render.text
-    def file_info():
-        file = input.file_upload()
-        if file is None:
-            return "No file uploaded."
-
-        saved_path = save_uploaded_file()  # Ensure this returns a valid path
-        print("Saved File Path:", saved_path)
-
-        if saved_path:
-            # Convert to absolute path
-            abs_path = os.path.abspath(saved_path)
-
-            # Determine file type based on extension
-            if saved_path.endswith(".csv" or ".txt"):
-                file_type = "csv"
-            elif saved_path.endswith(".h5ad"):
-                file_type = "h5ad"
-            elif saved_path.endswith(".loom"):
-                file_type = "loom"
-            elif saved_path.endswith(".h5"):
-                file_type = "10x"
-            else:
-                file_type = "unknown"  # Handle other cases
-
-            # Update config.json
-            config["input_file"] = abs_path
-            config["file_type"] = file_type  # Update file type
-            with open(config_path, "w") as f:
-                json.dump(config, f, indent=4)
-
-            return f"File Saved: {abs_path} (Type: {file_type})"
-
-        return "Error saving file." """
-    
-    # Function to re-run preprocessing with new QC thresholds
+    # Clear the uploads folder when the app is run
+    clear_uploads_folder()
 
     @reactive.effect
     @reactive.event(input.activate_button_ui)
     def activate_analysis():
-        # clearing csv files everytime analysis is pressed
+        # Clearing CSV files and figures every time analysis is pressed
         datapath = os.path.join(project_root, 'scRNA-seq-Automation', 'data')
         if os.path.exists(datapath):
             shutil.rmtree(datapath) 
-        # clearing figures everytime analysis is pressed
+        # Clearing figures every time analysis is pressed
         figurepath = os.path.join(project_root, 'scRNA-seq-Automation', 'figures')
         if os.path.exists(figurepath):
             shutil.rmtree(figurepath) 
+        
         # Run the main.py script in the 'src' directory
         script_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'main.py')
         try:
@@ -211,6 +172,7 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
+
     @output
     @render.image
     @reactive.event(input.activate_button_ui)
@@ -219,6 +181,7 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "200px"}  # Return image with height setting
         return None  # Return None if image is not found
+
     @output
     @render.image
     @reactive.event(input.activate_button_ui)
@@ -227,6 +190,7 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "200px"}  # Return image with height setting
         return None  # Return None if image is not found
+
     @output
     @render.image
     @reactive.event(input.activate_button_ui)
@@ -241,45 +205,101 @@ def server(input, output, session):
     def reprocess_status():
         return "Press 'Recalculate QC' to apply new metrics."
 
-    # Function to re-run preprocessing with new QC thresholds
     @reactive.effect
     @reactive.event(input.reprocess_button)
     def reprocess_data():
+        # Path to the figures folder
+        figurepath = os.path.join(project_root, 'scRNA-seq-Automation', 'figures')
+
+        # Clear the figures folder by deleting all its contents
+        if os.path.exists(figurepath):
+            shutil.rmtree(figurepath)  # Delete the folder and its contents
+        os.makedirs(figurepath, exist_ok=True)  # Recreate the folder
+
+        # Clear the displayed images on the website by setting them to None
+        @output
+        @render.image
+        def displayed_image1():
+            return None
+
+        @output
+        @render.image
+        def displayed_image2():
+            return None
+
+        @output
+        @render.image
+        def displayed_image3():
+            return None
+
+        @output
+        @render.image
+        def displayed_image4():
+            return None
+
+        # Save the original input_file and file_type before updating other parts of the config
+        original_input_file = config.get("input_file")
+        original_file_type = config.get("file_type")
+
+        # Update only the QC parameters
         config["preprocessing_params"]["min_genes"] = input.min_genes()
         config["preprocessing_params"]["min_cells"] = input.min_cells()
         config["preprocessing_params"]["target_sum"] = input.target_sum()
 
+        # Ensure input_file and file_type remain unchanged
+        if original_input_file is not None:
+            config["input_file"] = original_input_file
+        if original_file_type is not None:
+            config["file_type"] = original_file_type
+
+        # Write updated config back to file without overwriting input_file or file_type
         with open(config_path, "w") as f:
             json.dump(config, f, indent=4)
+            print(config)
+
+        # Re-run the analysis after the preprocessing update
         subprocess.run(["python", "src/main.py"])
-        session.send_notification("info", "Reprocessing complete!")
 
-    # Function to generate UMAP with user-defined genes
-    @output
-    @render.image
-    @reactive.event(input.update_umap)
-    def umap_plot():
-        gene_list = input.gene_input().split(",")
-        gene_list = [g.strip() for g in gene_list if g.strip()]
+        # Force the UI to update and display the new images by triggering re-render
+        @output
+        @render.image
+        def displayed_image1():
+            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'violin_qc_metrics.png')
+            if os.path.exists(image_path):
+                return {"src": image_path, "height": "400px"}
+            return None
 
-        if not gene_list:
-            return None  # No valid genes entered
+        @output
+        @render.image
+        def displayed_image2():
+            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_qc.png')
+            if os.path.exists(image_path):
+                return {"src": image_path, "height": "200px"}
+            return None
 
-        # Load updated dataset
-        global adata
-        adata = sc.read_h5ad("data/processed_data.h5ad")
+        @output
+        @render.image
+        def displayed_image3():
+            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_top5.png')
+            if os.path.exists(image_path):
+                return {"src": image_path, "height": "200px"}
+            return None
 
-        # Check if genes exist
-        valid_genes = [gene for gene in gene_list if gene in adata.var_names]
-        if not valid_genes:
-            return None  # No valid genes found
+        @output
+        @render.image
+        def displayed_image4():
+            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'rank_genes_groups_leiden.png')
+            if os.path.exists(image_path):
+                return {"src": image_path, "height": "400px"}
+            return None
 
-        # Generate UMAP
-        save_path = "figures/_custom_umap.png"
-        sc.pl.umap(adata, color=valid_genes, save="_custom_umap.png")
-        return {"src": save_path, "height": "500px"}
+        # Update the UI to show the completion message by updating the 'reprocess_status' output
+        @output
+        @render.text
+        def reprocess_status():
+            return "Reprocessing complete!"
 
+# Create the app
 app = App(app_ui, server)
 
 
-# display the first 10 genes on csv
