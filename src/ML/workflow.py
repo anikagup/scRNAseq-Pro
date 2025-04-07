@@ -8,9 +8,6 @@ import sklearn
 from sklearn.ensemble import RandomForestClassifier
 
 
-HVG_list = pd.read_csv("/Users/eriknoyman/Desktop/USC/Senior/Semester 2/BME 405/scRNA Seq Automation/scRNA-seq-Automation/src/ML/HVG_model_gene_names.csv")
-print(HVG_list.T)
-
 def predict_labels(x):
     #subset highly variable genes used by model to predict labels
     HVG_list = pd.read_csv("/Users/eriknoyman/Desktop/USC/Senior/Semester 2/BME 405/scRNA Seq Automation/scRNA-seq-Automation/src/ML/HVG_model_gene_names.csv")
@@ -35,18 +32,6 @@ def predict_labels(x):
 
     #create a new column in anndata object for model predictions
     x.obs["Classifier_predictions"] = word_labels
-    
-
-
-#example
-example = sc.read_h5ad('/Users/eriknoyman/Desktop/USC/Senior/Semester 2/BME 405/scRNA Seq Automation/scRNA-seq-Automation/data/Lung_scVI_result_annotation_log1p_20230108.h5ad')
-
-sc.pl.embedding(example, basis='X_mde', color='Anno1', title='MDE Embedding')
-
-predict_labels(example)
-
-sc.pl.embedding(example, basis='X_mde', color="Classifier_predictions", title='MDE Embedding')
-
 
 
 
