@@ -40,6 +40,8 @@ app_ui = ui.page_fluid(
     ui.output_image("displayed_image3"), 
     ui.h3("Ranked Genes"),
     ui.output_image("displayed_image4"), 
+    ui.h3("ML UMAP"),
+    ui.output_image("displayed_image5"), 
 
     # QC Parameter Inputs
     ui.h3("Modify QC Metrics"),
@@ -199,6 +201,15 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
+    
+    @output
+    @render.image
+    @reactive.event(input.activate_button_ui)
+    def displayed_image5():
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'ML_UMAP.png')
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "400px"}  # Return image with height setting
+        return None  # Return None if image is not found
 
     @output
     @render.text
@@ -235,6 +246,11 @@ def server(input, output, session):
         @output
         @render.image
         def displayed_image4():
+            return None
+        
+        @output
+        @render.image
+        def displayed_image5():
             return None
 
         # Save the original input_file and file_type before updating other parts of the config
@@ -289,6 +305,14 @@ def server(input, output, session):
         @render.image
         def displayed_image4():
             image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'rank_genes_groups_leiden.png')
+            if os.path.exists(image_path):
+                return {"src": image_path, "height": "400px"}
+            return None
+        
+        @output
+        @render.image
+        def displayed_image5():
+            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'ML_UMAP.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "400px"}
             return None
