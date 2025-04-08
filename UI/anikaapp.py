@@ -181,7 +181,7 @@ def server(input, output, session):
     def displayed_image2():
         image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_qc.png')
         if os.path.exists(image_path):
-            return {"src": image_path, "height": "200px"}  # Return image with height setting
+            return {"src": image_path, "height": "250px"}  # Return image with height setting
         return None  # Return None if image is not found
 
     @output
@@ -190,7 +190,7 @@ def server(input, output, session):
     def displayed_image3():
         image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_top5.png')
         if os.path.exists(image_path):
-            return {"src": image_path, "height": "200px"}  # Return image with height setting
+            return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
 
     @output
@@ -206,7 +206,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image5():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'ML_UMAP.png')
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'ML_UMAPgit .png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -290,7 +290,7 @@ def server(input, output, session):
         def displayed_image2():
             image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_qc.png')
             if os.path.exists(image_path):
-                return {"src": image_path, "height": "200px"}
+                return {"src": image_path, "height": "250px"}
             return None
 
         @output
@@ -298,7 +298,7 @@ def server(input, output, session):
         def displayed_image3():
             image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_top5.png')
             if os.path.exists(image_path):
-                return {"src": image_path, "height": "200px"}
+                return {"src": image_path, "height": "400px"}
             return None
 
         @output

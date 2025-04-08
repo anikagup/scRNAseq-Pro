@@ -1,6 +1,6 @@
 {
-    "input_file": "uploads/latest.h5ad",
-    "file_type": "h5ad",
+    "input_file": "uploads/latest.csv",
+    "file_type": "csv",
     "preprocessing_params": {
         "min_genes": 200,
         "min_cells": 5,
