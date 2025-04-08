@@ -29,10 +29,11 @@ def generate_umap(adata, config):
 
     # Default UMAP plots
     sc.pl.umap(adata, color=["leiden", "total_counts", "n_genes_by_counts"], wspace=0.4, save=f"_qc.png", show=False)
+    sc.pl.umap(adata, color=adata.var_names[:5], wspace=0.4, save=f"_top5.png", show=False)
 
-    color_genes = list(adata.var_names[:5])
+    """ color_genes = list(adata.var_names[:5])
     with rc_context({"figure.figsize": (5, 1)}):
-        sc.pl.umap(adata, color=color_genes, s=50, frameon=False, ncols=4, vmax="p99", save=f"_top5.png", show=False)
+        sc.pl.umap(adata, color=color_genes, s=50, frameon=False, ncols=4, vmax="p99", save=f"_top5.png", show=False) """
     #sc.pl.umap(adata, list(adata.var_names[:5]), save=f"genes_umap.png")  # Add first 5 genes for visualization
 
     #for feature in umap_features:
