@@ -4,6 +4,7 @@ import os
 
 from preprocessing import preprocess_data, load_data
 from analysis import generate_umap, prediction_umap, perform_differential_expression
+from ML.workflow import predict_labels
 
 
 import os
@@ -58,6 +59,8 @@ print("✅ Preprocessing complete!")
 
 # Generate UMAPs and perform clustering
 generate_umap(adata, config)
+
+predict_labels(adata)
 
 prediction_umap(adata, config)
 
