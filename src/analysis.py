@@ -40,6 +40,10 @@ def generate_umap(adata, config):
 
     print(f"✅ UMAP plots saved")
 
+def prediction_umap(adata, config):
+    sc.pl.umap(adata, color="Classifier_predictions", save=f"ML_umap.png", show=False)
+    print(f"ML-classified plot is done!")
+
 # Function to perform differential gene expression analysis
 def perform_differential_expression(adata, config):
     num_degs = config.get("differential_expression", {}).get("num_degs", 20)

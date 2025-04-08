@@ -3,7 +3,7 @@ import scanpy as sc
 import os
 
 from preprocessing import preprocess_data, load_data
-from analysis import generate_umap, perform_differential_expression
+from analysis import generate_umap, prediction_umap, perform_differential_expression
 
 
 import os
@@ -58,6 +58,8 @@ print("✅ Preprocessing complete!")
 
 # Generate UMAPs and perform clustering
 generate_umap(adata, config)
+
+prediction_umap(adata, config)
 
 # Perform differential gene expression analysis
 perform_differential_expression(adata, config)
