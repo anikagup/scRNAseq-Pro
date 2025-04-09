@@ -3,7 +3,7 @@ import scanpy as sc
 import os
 
 from preprocessing import preprocess_data, load_data, export_adata_to_csv
-from analysis import generate_umap, prediction_umap, perform_differential_expression
+from analysis import generate_umap, prediction_umap, perform_differential_expression, user_umap
 from ML.workflow import predict_labels
 
 
@@ -42,6 +42,7 @@ file_type = config.get("file_type", "auto")
 # input_file = config.get("input_file", "data/pbmc3k.h5ad")
 # file_type = config.get("file_type", "h5ad")
 params = config.get("preprocessing_params", {})
+umap_params=config.get("visualization", {})
 
 print("📂 Loading dataset...")
 adata = load_data(input_file, file_type)
@@ -63,18 +64,16 @@ print("✅ processed data matrix has been downloaded")
 # Generate UMAPs and perform clustering
 generate_umap(adata, config)
 
-predict_labels(adata)
-
-prediction_umap(adata, config)
-
-# Perform differential gene expression analysis
-perform_differential_expression(adata, config)
-
+user_umap(adata, umap_params)
 #predict_labels(adata)
 
 #prediction_umap(adata, config)
 
+# Perform differential gene expression analysis
+perform_differential_expression(adata, config)
+
+
 
 # Save processed data
 adata.write("processed_data/final_processed_data.h5ad")
-print("✅ Processed data saved to 'processed_data/processed_data.h5ad'")
+print("✅ Processed data saved to 'processed_data/final_processed_data.h5ad'")

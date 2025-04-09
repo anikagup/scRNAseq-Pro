@@ -203,6 +203,18 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
+    
+    """@output
+    @render.image
+    @reactive.event(input.activate_button_ui)
+    def displayed_image3a():
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_custom_gene.png')
+        print("🔍 Looking for:", image_path)
+        print("✅ Exists?", os.path.exists(image_path))
+
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "400px"}
+        return None """
 
     @output
     @render.image

@@ -6,26 +6,6 @@ import json
 import matplotlib.pyplot as plt
 import scrublet as scr
 
-""" # Dynamically find the root directory
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
-# Correct path to config.json
-CONFIG_PATH = os.path.join(ROOT_DIR, "config.json")
-
-print(f"📂 Looking for config.json at: {CONFIG_PATH}")  # Debugging print
-
-# Load config.json safely
-if not os.path.exists(CONFIG_PATH):
-    raise FileNotFoundError(f"❌ ERROR: for preprocessing config.json not found at {CONFIG_PATH}")
-
-with open(CONFIG_PATH, "r") as config_file:
-    config = json.load(config_file)
-
-print(f"✅ Loaded config in preprocessing from: {CONFIG_PATH}")
-
-# Define file paths
-input_file = config.get("input_file", "data/input_file")
-file_type = config.get("file_type", "auto") """
 
 # Load data based on file type
 def load_data(file, file_type):
@@ -42,7 +22,29 @@ def load_data(file, file_type):
         raise ValueError("Unsupported file type.")
     return adata
 
+# Run Scrublet
+def detect_doublets(adata):
+    # Ensure raw count matrix is used
+    counts_matrix = adata.raw.X if adata.raw is not None else adata.X
+    if hasattr(counts_matrix, "toarray"):
+        counts_matrix = counts_matrix.toarray()
 
+    scrub = scr.Scrublet(counts_matrix)
+    doublet_scores, predicted_doublets = scrub.scrub_doublets()
+
+    adata.obs["doublet_score"] = doublet_scores
+    adata.obs["predicted_doublet"] = predicted_doublets
+
+    # Optional: save histogram
+    import matplotlib.pyplot as plt
+    scrub.plot_histogram()
+    plt.savefig("figures/doublet_score_histogram.png")
+
+    # Filter out doublets
+    adata = adata[~predicted_doublets].copy()
+    print(f"✅ Removed {np.sum(predicted_doublets)} predicted doublets.")
+    return adata
+    
 # Function to calculate QC metrics and generate plots
 def generate_qc_metrics(adata):
     adata.var['mt'] = adata.var_names.str.startswith('MT-')  # Identify mitochondrial genes
@@ -59,7 +61,24 @@ def preprocess_data(adata, params):
     
     sc.pp.filter_cells(adata, min_genes=params.get("min_genes", 200)) #Changeable
     sc.pp.filter_genes(adata, min_cells=params.get("min_cells", 3)) #Changeable
+
     print("Filtering is done")
+
+    # Identify mitochondrial genes
+    adata.var["mt"] = adata.var_names.str.upper().str.startswith("MT-")
+
+    # Calculate QC metrics including mitochondrial percentage
+    sc.pp.calculate_qc_metrics(adata, qc_vars=["mt"], inplace=True)
+
+    # Filter out cells with high mitochondrial content (usually > 5–10%)
+    adata = adata[adata.obs["pct_counts_mt"] < 10].copy()
+
+    print("Successfully filtered out cells w/>10% mitochondrial content")
+
+    
+    detect_doublets(adata)
+    print("Successfully filtered out doublets")
+
     sc.pp.normalize_total(adata, target_sum=params.get("target_sum", 1e4))
     sc.pp.log1p(adata)
     print("Normalization is done")
@@ -68,11 +87,6 @@ def preprocess_data(adata, params):
     adata = adata[:, adata.var["highly_variable"]]
 
     sc.pp.scale(adata, max_value=params.get("max_value", 10)) #Download CSV of count matrix
-    """sc.tl.pca(adata, svd_solver='arpack')
-    print("Done w/ PCA")
-    sc.pp.neighbors(adata, n_neighbors=params.get("n_neighbors", 10), n_pcs=params.get("n_pcs", 40))
-    sc.tl.umap(adata)
-    print("Done w/ UMAP") """
 
     return adata
 
@@ -82,15 +96,3 @@ def export_adata_to_csv(adata, output_path="processed_data/processed_matrix.csv"
     df = pd.DataFrame(dense_matrix, index=adata.obs_names, columns=adata.var_names)
     df.to_csv(output_path)
     print(f"✅ Processed expression matrix exported to {output_path}")
-
-""" # Main execution
-params = config.get("preprocessing_params", {})
-#adata = load_data(input_file, file_type)
-adata=sc.datasets.pbmc3k()
-adata.write("data/pbmc3k.h5ad") """
-""" if adata is not None:
-    adata = preprocess_data(adata, params)
-    sc.pl.umap(adata, color='CST3')
-    adata.write("data/processed_data.h5ad")
-else:
-    print("No valid data loaded.") """
