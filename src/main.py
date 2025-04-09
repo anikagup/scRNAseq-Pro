@@ -60,9 +60,9 @@ print("✅ Preprocessing complete!")
 # Generate UMAPs and perform clustering
 generate_umap(adata, config)
 
-predict_labels(adata)
+# predict_labels(adata)
 
-prediction_umap(adata, config)
+# prediction_umap(adata, config)
 
 # Perform differential gene expression analysis
 perform_differential_expression(adata, config)
