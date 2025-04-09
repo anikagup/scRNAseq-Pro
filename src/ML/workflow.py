@@ -8,11 +8,14 @@ import sklearn
 from sklearn.ensemble import RandomForestClassifier
 
 
-def predict_labels(x):
+def predict_labels(adata):
     #subset highly variable genes used by model to predict labels
     HVG_list = pd.read_csv("src/ML/HVG_model_gene_namesV2.csv")
     HVG_list = HVG_list.iloc[0].tolist()  # Convert the first row of the DataFrame to a list
-    data_subet = x[: , HVG_list]
+    
+    intersection = adata.var_names.isin(HVG_list)
+
+    data_subet = adata[: , intersection]
 
     #prediction numerical label to words
     label_dict = {
@@ -31,7 +34,6 @@ def predict_labels(x):
     word_labels = [label_dict[num_label] for num_label in predictions]
 
     #create a new column in anndata object for model predictions
-    x.obs["Classifier_predictions"] = word_labels
+    adata.obs["Classifier_predictions"] = word_labels
 
-
-
+    return adata
