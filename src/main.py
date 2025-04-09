@@ -63,6 +63,10 @@ print("✅ processed data matrix has been downloaded")
 # Generate UMAPs and perform clustering
 generate_umap(adata, config)
 
+predict_labels(adata)
+
+prediction_umap(adata, config)
+
 # Perform differential gene expression analysis
 perform_differential_expression(adata, config)
 
