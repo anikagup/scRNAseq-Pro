@@ -65,7 +65,7 @@ def server(input, output, session):
     adata = None  # Placeholder for loaded data
 
     # Function to save uploaded file
-    def save_uploaded_file():
+    """ def save_uploaded_file():
         file = input.file_upload()
         if file:
             base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
@@ -76,7 +76,7 @@ def server(input, output, session):
             saved_path = os.path.join(upload_dir, file[0]["name"])
             shutil.move(temp_path, saved_path)
             return saved_path
-        return None
+        return None """
 
     # Supported file extensions
     ALLOWED_EXTENSIONS = {
@@ -145,6 +145,17 @@ def server(input, output, session):
 
     # Clear the uploads folder when the app is run
     clear_uploads_folder()
+
+    # Function to clear uploads folder when app is run
+    def clear_processed_data_folder():
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        processed_data_dir = os.path.join(base_dir, "processed_data")
+        if os.path.exists(processed_data_dir):
+            shutil.rmtree(processed_data_dir)  # Delete the folder and its contents
+        os.makedirs(processed_data_dir, exist_ok=True)  # Recreate the folder
+
+    # Clear the uploads folder when the app is run
+    clear_processed_data_folder()
 
     @reactive.effect
     @reactive.event(input.activate_button_ui)

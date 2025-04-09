@@ -7,15 +7,16 @@ import shutil
 
 # Function to perform clustering & generate UMAP
 def generate_umap(adata, config):
-    print("🔄 Running Leiden clustering...")
-    sc.tl.leiden(adata, resolution=config.get("differential_expression", {}).get("resolution", 0.5))
-    print("✅ Leiden clustering complete!")
 
     print("🔄 Running PCA & Neighbors...")
     sc.tl.pca(adata, svd_solver='arpack')  # Ensure PCA is computed
     sc.pp.neighbors(adata, n_neighbors=config.get("preprocessing_params", {}).get("n_neighbors", 10),
                     n_pcs=config.get("preprocessing_params", {}).get("n_pcs", 40))
+    
     print("✅ PCA & neighbors computed!")
+    print("🔄 Running Leiden clustering...")
+    sc.tl.leiden(adata, resolution=config.get("differential_expression", {}).get("resolution", 0.5))
+    print("✅ Leiden clustering complete!")
 
     print("🔄 Running UMAP...")
     sc.tl.umap(adata)

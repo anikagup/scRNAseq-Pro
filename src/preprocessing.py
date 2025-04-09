@@ -66,13 +66,22 @@ def preprocess_data(adata, params):
     sc.pp.highly_variable_genes(adata, n_top_genes=params.get("n_top_genes", 2000)) #Changeable
     print("Highly variable genes have been found")
     adata = adata[:, adata.var["highly_variable"]]
+
     sc.pp.scale(adata, max_value=params.get("max_value", 10)) #Download CSV of count matrix
-    sc.tl.pca(adata, svd_solver='arpack')
+    """sc.tl.pca(adata, svd_solver='arpack')
     print("Done w/ PCA")
     sc.pp.neighbors(adata, n_neighbors=params.get("n_neighbors", 10), n_pcs=params.get("n_pcs", 40))
     sc.tl.umap(adata)
-    print("Done w/ UMAP")
+    print("Done w/ UMAP") """
+
     return adata
+
+
+def export_adata_to_csv(adata, output_path="processed_data/processed_matrix.csv"):
+    dense_matrix = adata.X.toarray() if hasattr(adata.X, "toarray") else adata.X
+    df = pd.DataFrame(dense_matrix, index=adata.obs_names, columns=adata.var_names)
+    df.to_csv(output_path)
+    print(f"✅ Processed expression matrix exported to {output_path}")
 
 """ # Main execution
 params = config.get("preprocessing_params", {})
