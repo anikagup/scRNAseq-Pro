@@ -276,6 +276,8 @@ def server(input, output, session):
         def displayed_image5():
             return None
 
+        with open(config_path, "r") as f:
+            config = json.load(f)
         # Save the original input_file and file_type before updating other parts of the config
         original_input_file = config.get("input_file")
         original_file_type = config.get("file_type")
