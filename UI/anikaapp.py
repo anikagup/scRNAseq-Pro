@@ -31,6 +31,8 @@ app_ui = ui.page_fluid(
     ),
 
     ui.output_text("file_info"),
+    ui.tags.br(),
+
     ui.input_action_button("activate_button_ui", "Run analysis"),
     ui.h3("Violin QC"),
     ui.output_image("displayed_image1"),
@@ -42,6 +44,11 @@ app_ui = ui.page_fluid(
     ui.output_image("displayed_image4"), 
     ui.h3("ML UMAP"),
     ui.output_image("displayed_image5"), 
+
+    # Add download button for file and dynamic status message
+    ui.download_button("downloadData", "Download Processed CSV"),
+    ui.output_text("fileStatus"),
+    ui.tags.br(),
 
     # QC Parameter Inputs
     ui.h3("Modify QC Metrics"),
@@ -57,6 +64,9 @@ app_ui = ui.page_fluid(
     ui.input_text("gene_input", "Enter Genes (comma-separated):", placeholder="E.g., CST3, NKG7"),
     ui.input_action_button("update_umap", "Generate UMAP"),
     ui.output_image("umap_plot"), 
+
+
+
 )
 
 def server(input, output, session):
@@ -134,7 +144,7 @@ def server(input, output, session):
         saved_path = save_uploaded_file()
         if saved_path:
             return f"✅ File saved and config updated: {saved_path}"
-        return "❌ File upload failed or unsupported format."
+        return "❌ Please upload an accepted file type."
 
     # Function to clear uploads folder when app is run
     def clear_uploads_folder():
@@ -157,25 +167,61 @@ def server(input, output, session):
     # Clear the uploads folder when the app is run
     clear_processed_data_folder()
 
+
     @reactive.effect
     @reactive.event(input.activate_button_ui)
     def activate_analysis():
         # Clearing CSV files and figures every time analysis is pressed
         datapath = os.path.join(project_root, 'scRNA-seq-Automation', 'data')
         if os.path.exists(datapath):
-            shutil.rmtree(datapath) 
+            shutil.rmtree(datapath)
+        
         # Clearing figures every time analysis is pressed
         figurepath = os.path.join(project_root, 'scRNA-seq-Automation', 'figures')
         if os.path.exists(figurepath):
-            shutil.rmtree(figurepath) 
-        
+            shutil.rmtree(figurepath)
+
         # Run the main.py script in the 'src' directory
         script_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'main.py')
         try:
             subprocess.run(['python', script_path], check=True)  # Run the script
             print("main.py has been executed successfully.")
         except subprocess.CalledProcessError as e:
-            print(f"Error running main.py: {e}")    
+            print(f"Error running main.py: {e}")
+
+        # Define the path to the output CSV
+    processed_csv_path = os.path.join(project_root, 'scRNA-seq-Automation', 'processed_data', 'all_degs.csv')
+
+
+    # Always render download button
+    @output
+    @render.download
+    def downloadData():
+        if os.path.exists(processed_csv_path):
+            return processed_csv_path
+        else:
+            # If file doesn't exist, prevent download by returning None
+            return None
+
+
+    file_ready = reactive.Value(False)
+
+    @output
+    @render.text
+    def fileStatus():
+        if file_ready():
+            return "✅ Processed CSV is ready for download."
+        else:
+            return "❌ Processed CSV not found yet. Run the analysis first."
+
+    @reactive.effect
+    @reactive.event(input.activate_button_ui)
+    def check_csv_file():
+        if os.path.exists(processed_csv_path):
+            file_ready.set(True)
+        else:
+            file_ready.set(False)
+   
 
     @output
     @render.image
