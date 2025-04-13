@@ -2,9 +2,9 @@
     "input_file": "uploads/latest.csv",
     "file_type": "csv",
     "preprocessing_params": {
-        "min_genes": 100,
+        "min_genes": 200,
         "min_cells": 4,
-        "target_sum": 10002,
+        "target_sum": 10000,
         "n_top_genes": 2000,
         "max_value": 10,
         "n_neighbors": 10,
