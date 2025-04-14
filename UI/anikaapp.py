@@ -35,7 +35,8 @@ app_ui = ui.page_fluid(
 
     ui.input_action_button("activate_button_ui", "Run analysis"),
 
-
+    ui.tags.br(),
+    ui.tags.br(),
     # QC Parameter Inputs with modified note positions and line breaks
     # QC Parameter Inputs with explanatory text between title and input box
     ui.h3("Modify QC Metrics"),
@@ -67,7 +68,7 @@ app_ui = ui.page_fluid(
     
     ui.output_text("reprocess_status"),
 
-
+    ui.tags.br(),
     ui.h3("Violin QC"),
     ui.output_image("displayed_image1"),
     ui.output_ui("violin_qc_text"),
