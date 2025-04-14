@@ -34,30 +34,12 @@ app_ui = ui.page_fluid(
     ui.tags.br(),
 
     ui.input_action_button("activate_button_ui", "Run analysis"),
-    ui.h3("Violin QC"),
-    ui.output_image("displayed_image1"),
-    ui.output_ui("violin_qc_text"),
-    ui.h3("UMAP QC"),
-    ui.output_image("displayed_image2"),   
-    ui.h3("UMAP Top 5"),
-    ui.output_image("displayed_image3"), 
-    ui.h3("Ranked Genes"),
-    ui.output_image("displayed_image4"), 
-    ui.h3("ML UMAP"),
-    ui.output_image("displayed_image5"), 
 
-    ui.tags.br(),
-
-    # Add download button for file and dynamic status message
-    ui.download_button("downloadData", "Download Processed CSV"),
-    ui.output_text("fileStatus"),
-    ui.tags.br(),
 
     # QC Parameter Inputs with modified note positions and line breaks
     # QC Parameter Inputs with explanatory text between title and input box
     ui.h3("Modify QC Metrics"),
-    
-    # Min Genes per Cell
+        # Min Genes per Cell
     ui.h4("Min Genes per Cell", style="font-size: 16px;"),
     ui.div(
         ui.tags.span("📝 This sets the minimum number of genes that must be detected in each cell for it to be included in the analysis. It helps filter out low-quality or dying cells that have little RNA content. A common threshold is 200-500 genes per cell but this may vary depending on tissue type and sequencing depth.", style="font-size: 14px;"),
@@ -84,6 +66,30 @@ app_ui = ui.page_fluid(
     ui.input_action_button("reprocess_button", "Recalculate QC and Preprocessing"),
     
     ui.output_text("reprocess_status"),
+
+
+    ui.h3("Violin QC"),
+    ui.output_image("displayed_image1"),
+    ui.output_ui("violin_qc_text"),
+    ui.h3("UMAP QC"),
+    ui.output_image("displayed_image2"),   
+    ui.h3("UMAP Top 5"),
+    ui.output_image("displayed_image3"), 
+    ui.h3("Ranked Genes"),
+    ui.output_image("displayed_image4"), 
+    ui.h3("ML UMAP"),
+    ui.output_image("displayed_image5"), 
+
+    ui.tags.br(),
+
+    # Add download button for file and dynamic status message
+    ui.download_button("downloadData", "Download Processed CSV"),
+    ui.output_text("fileStatus"),
+    ui.tags.br(),
+
+
+    
+
 
     # # UMAP Gene Selection
     # ui.h3("Visualize UMAP"),
