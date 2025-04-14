@@ -9,3 +9,5 @@ igraph
 leidenalg
 scrublet
 joblib
+libomp
+xgboost
