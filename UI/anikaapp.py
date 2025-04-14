@@ -58,30 +58,24 @@ app_ui = ui.page_fluid(
     # Min Genes per Cell
     ui.h4("Min Genes per Cell", style="font-size: 16px;"),
     ui.div(
-        ui.tags.span("📝 This sets the minimum number of genes that must be detected in each cell for it to be included  ", style="font-size: 14px;"),
-        ui.tags.br(),
-        ui.tags.span("in the analysis. It helps filter out low-quality or dying cells that have little RNA content.", style="font-size: 14px;"),
-        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 47%;"
+        ui.tags.span("📝 This sets the minimum number of genes that must be detected in each cell for it to be included in the analysis. It helps filter out low-quality or dying cells that have little RNA content. A common threshold is 200-500 genes per cell but this may vary depending on tissue type and sequencing depth.", style="font-size: 14px;"),
+        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
     ),
     ui.input_numeric("min_genes", " ", value=config["preprocessing_params"]["min_genes"], min=50, max=1000, step=50),
     
     # Min Cells per Gene
     ui.h4("Min Cells per Gene", style="font-size: 16px;"),
     ui.div(
-        ui.tags.span("📝 This sets the minimum number of cells a gene must appear in to be kept in the dataset.", style="font-size: 14px;"),
-        ui.tags.br(),
-        ui.tags.span("It removes genes that are only expressed in a few cells and may represent noise.", style="font-size: 14px;"),
-        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 43%;"
+        ui.tags.span("📝 This sets the minimum number of cells a gene must appear in to be kept in the dataset. It removes genes that are only expressed in a few cells and may represent noise. A typical threshold is 3–10 cells per gene, which balances removing artifact noise without discarding biologically relevant genes.", style="font-size: 14px;"),
+        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
     ),
     ui.input_numeric("min_cells", " ", value=config["preprocessing_params"]["min_cells"], min=1, max=50, step=1),
     
     # Normalization Target Sum
     ui.h4("Normalization Target Sum", style="font-size: 16px;"),
     ui.div(
-        ui.tags.span("📝 This sets the total gene expression count to which each cell is scaled, allowing fair", style="font-size: 14px;"),
-        ui.tags.br(),
-        ui.tags.span("comparison between cells with different sequencing depths. A typical value is 10,000.", style="font-size: 14px;"),
-        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 41%;"
+        ui.tags.span("📝 This sets the total gene expression count to which each cell is scaled, allowing fair comparison between cells with different sequencing depths. A typical value is 10,000.", style="font-size: 14px;"),
+        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
     ),
     ui.input_numeric("target_sum", " ", value=config["preprocessing_params"]["target_sum"], min=1000, max=50000, step=1000),
 
