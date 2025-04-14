@@ -46,6 +46,8 @@ app_ui = ui.page_fluid(
     ui.h3("ML UMAP"),
     ui.output_image("displayed_image5"), 
 
+    ui.tags.br(),
+
     # Add download button for file and dynamic status message
     ui.download_button("downloadData", "Download Processed CSV"),
     ui.output_text("fileStatus"),
@@ -318,7 +320,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image5():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'ML_UMAPgit .png')
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umapML_umap.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -426,7 +428,7 @@ def server(input, output, session):
         @output
         @render.image
         def displayed_image5():
-            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'ML_UMAP.png')
+            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umapML_umap.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "400px"}
             return None
