@@ -55,7 +55,7 @@ print(f"✅ Data loaded! Shape: {adata.shape}")  # Debugging step
 
 # Preprocess data
 print("🔄 Running preprocessing...")
-adata = preprocess_data(adata, params)
+adata, ML_data = preprocess_data(adata, params)
 print("✅ Preprocessing complete!")
 
 export_adata_to_csv(adata, output_path="processed_data/processed_matrix.csv")
@@ -65,9 +65,11 @@ print("✅ processed data matrix has been downloaded")
 generate_umap(adata, config)
 
 user_umap(adata, umap_params)
-#predict_labels(adata)
 
-#prediction_umap(adata, config)
+#generate model cell type predictions
+predict_labels(adata, ML_data)
+
+prediction_umap(adata, config)
 
 # Perform differential gene expression analysis
 perform_differential_expression(adata, config)
