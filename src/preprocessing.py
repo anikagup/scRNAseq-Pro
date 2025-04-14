@@ -84,11 +84,14 @@ def preprocess_data(adata, params):
     print("Normalization is done")
     sc.pp.highly_variable_genes(adata, n_top_genes=params.get("n_top_genes", 2000)) #Changeable
     print("Highly variable genes have been found")
+    #make a copy of data before subsetting highly variable genes to feed to ML model for labeling
+    ML_data = adata.copy()
     adata = adata[:, adata.var["highly_variable"]]
 
     sc.pp.scale(adata, max_value=params.get("max_value", 10)) #Download CSV of count matrix
+    sc.pp.scale(ML_data, max_value=params.get("max_value", 10)) #Download CSV of count matrix
 
-    return adata
+    return adata, ML_data
 
 
 def export_adata_to_csv(adata, output_path="processed_data/processed_matrix.csv"):
