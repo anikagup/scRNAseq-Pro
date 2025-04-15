@@ -89,7 +89,7 @@ app_ui = ui.page_fluid(
 
     # UMAP Gene Selection
     ui.h3("Visualize UMAP"),
-    ui.input_text("gene_input", "Enter Genes (comma-separated):", placeholder="E.g., CST3, NKG7"),
+    ui.input_text("gene_input", "Enter Gene:", placeholder="E.g., 'CST3' or 'NKG7' "),
     ui.input_action_button("update_umap", "Generate UMAP"),
     ui.output_text("gene_status"),
     ui.tags.br(),
