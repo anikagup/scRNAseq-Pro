@@ -4,9 +4,11 @@ services:
     build: .
     container_name: scrna-backend
     volumes:
+      - ./processed_data:/app/processed_data
       - ./uploads:/app/uploads
       - ./figures:/app/figures
-    command: ["python", "src/main.py"]
+      - ./src:/app/src #allows Docker to keep track of new changes to code w/o having to rebuild
+    command: ["sleep", "infinity"]
 
   frontend:
     build: .
@@ -14,8 +16,11 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - ./processed_data:/app/processed_data
+      - ./src:/app/src
       - ./uploads:/app/uploads
       - ./figures:/app/figures
-    command: ["shiny", "run", "--port", "8000", "UI/anikaapp.py"]
+      - ./UI:/app/UI
+    command: ["shiny", "run", "--host", "0.0.0.0", "--port", "8000", "UI/anikaapp.py"]
     depends_on:
       - backend

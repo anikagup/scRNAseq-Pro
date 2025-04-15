@@ -1,0 +1,12 @@
+scanpy
+numpy 
+pandas
+matplotlib 
+seaborn
+anndata
+shiny
+igraph
+leidenalg 
+scrublet 
+joblib
+xgboost

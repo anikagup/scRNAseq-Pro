@@ -76,7 +76,7 @@ def preprocess_data(adata, params):
     print("Successfully filtered out cells w/>10% mitochondrial content")
 
     
-    detect_doublets(adata)
+    adata=detect_doublets(adata)
     print("Successfully filtered out doublets")
 
     sc.pp.normalize_total(adata, target_sum=params.get("target_sum", 1e4))

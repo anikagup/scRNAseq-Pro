@@ -10,12 +10,26 @@ print("App is starting...")
 
 # Load configuration
 # Get the absolute path to the root of the project
-project_root = os.path.abspath(os.path.join(os.getcwd(), '..'))
+project_root = os.path.dirname(__file__)
 print(project_root)
-config_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'config.json')
+config_path = os.path.join(project_root, "../src/config.json")
 print(config_path)
 with open(config_path, 'r') as f:
     config = json.load(f)
+
+# Helper function to clear contents of a folder
+def clear_folder(folder_path):
+    if os.path.exists(folder_path):
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(f"⚠️ Failed to delete {file_path}. Reason: {e}")
+
 
 # Define the UI layout
 app_ui = ui.page_fluid(
@@ -175,53 +189,37 @@ def server(input, output, session):
             return f"✅ File saved and config updated: {saved_path}"
         return "❌ Please upload an accepted file type."
 
-    # Function to clear uploads folder when app is run
-    def clear_uploads_folder():
-        upload_dir = os.path.join(os.getcwd(), 'uploads')
-        if os.path.exists(upload_dir):
-            shutil.rmtree(upload_dir)  # Delete the folder and its contents
-        os.makedirs(upload_dir, exist_ok=True)  # Recreate the folder
 
-    # Clear the uploads folder when the app is run
-    clear_uploads_folder()
 
-    # Function to clear uploads folder when app is run
-    def clear_processed_data_folder():
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        processed_data_dir = os.path.join(base_dir, "processed_data")
-        if os.path.exists(processed_data_dir):
-            shutil.rmtree(processed_data_dir)  # Delete the folder and its contents
-        os.makedirs(processed_data_dir, exist_ok=True)  # Recreate the folder
+    clear_folder(os.path.join(os.path.dirname(__file__), "../uploads"))
 
-    # Clear the uploads folder when the app is run
-    clear_processed_data_folder()
+
+        # Function to clear uploads folder when app is run
+    clear_folder(os.path.join(os.path.dirname(__file__), "../processed_data"))
+
 
 
     @reactive.effect
     @reactive.event(input.activate_button_ui)
     def activate_analysis():
         # Clearing CSV files and figures every time analysis is pressed
-        datapath = os.path.join(project_root, 'scRNA-seq-Automation', 'data')
-        if os.path.exists(datapath):
-            shutil.rmtree(datapath)
-        
-        # Clearing figures every time analysis is pressed
-        figurepath = os.path.join(project_root, 'scRNA-seq-Automation', 'figures')
-        if os.path.exists(figurepath):
-            shutil.rmtree(figurepath)
+        clear_folder(os.path.join(project_root, '..', 'data'))
+        clear_folder(os.path.join(project_root, '..', 'figures'))
 
         # Run the main.py script in the 'src' directory
-        script_path = os.path.join(project_root, 'scRNA-seq-Automation', 'src', 'main.py')
-        try:
-            subprocess.run(['python', script_path], check=True)  # Run the script
-            print("main.py has been executed successfully.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error running main.py: {e}")
+        script_path = "/app/src/main.py"
+        
+        subprocess.run(['python', script_path], check=True)  # Run the script
+        print("main.py has been executed successfully.")
+        processed_csv_path = "/app/processed_data/all_degs.csv"
+        if os.path.exists(processed_csv_path):
+            print(f"✅ Found DEGs at: {processed_csv_path}")
+            file_ready.set(True)
+        else:
+            print(f"❌ DEGs file not found at {processed_csv_path}")
+            file_ready.set(False)
 
-        # Define the path to the output CSV
-    processed_csv_path = os.path.join(project_root, 'scRNA-seq-Automation', 'processed_data', 'all_degs.csv')
-
-
+    processed_csv_path = os.path.join("/app", "processed_data", "all_degs.csv")
     # Always render download button
     @output
     @render.download
@@ -243,20 +241,12 @@ def server(input, output, session):
         else:
             return "❌ Processed CSV not found yet. Run the analysis first."
 
-    @reactive.effect
-    @reactive.event(input.activate_button_ui)
-    def check_csv_file():
-        if os.path.exists(processed_csv_path):
-            file_ready.set(True)
-        else:
-            file_ready.set(False)
-   
 
     @output
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image1():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'violin_qc_metrics.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'violin_qc_metrics.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "350px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -264,7 +254,7 @@ def server(input, output, session):
     @render.ui
     @reactive.event(input.activate_button_ui)
     def violin_qc_text():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'violin_qc_metrics.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'violin_qc_metrics.png')
         if os.path.exists(image_path):
             return ui.HTML(
                 """
@@ -284,7 +274,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image2():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_qc.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'umap_qc.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "250px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -293,7 +283,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image3():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_top5.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'umap_top5.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -302,7 +292,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image3a():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_custom_gene.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'umap_custom_gene.png')
         print("🔍 Looking for:", image_path)
         print("✅ Exists?", os.path.exists(image_path))
 
@@ -314,7 +304,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image4():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'rank_genes_groups_leiden.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'rank_genes_groups_leiden.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -323,7 +313,7 @@ def server(input, output, session):
     @render.image
     @reactive.event(input.activate_button_ui)
     def displayed_image5():
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umapML_umap.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'umapML_umap.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
@@ -337,13 +327,13 @@ def server(input, output, session):
         config["visualization"]["custom_genes"] = input.gene_input()
         with open(config_path, "w") as f:
             json.dump(config, f, indent=4)
-        upload_path = os.path.join(os.getcwd(), 'figures', 'umap_custom_gene.png')
+        upload_path = os.path.join("/app", 'figures', 'umap_custom_gene.png')
         print(upload_path)
 
         if os.path.exists(upload_path):
             os.remove(upload_path)
         
-        subprocess.run(["python", "src/main.py"])
+        subprocess.run(["python", "/app/src/main.py"], check=True)
         
 
         @output
@@ -351,7 +341,7 @@ def server(input, output, session):
         def gene_status():
             return None
 
-        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_custom_gene.png')
+        image_path = os.path.join(project_root, '..', 'figures', 'umap_custom_gene.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         else: 
@@ -370,7 +360,7 @@ def server(input, output, session):
     @reactive.event(input.reprocess_button)
     def reprocess_data():
         # Path to the figures folder
-        figurepath = os.path.join(project_root, 'scRNA-seq-Automation', 'figures')
+        figurepath = os.path.join(project_root, '..', 'figures')
 
         # Clear the figures folder by deleting all its contents
         if os.path.exists(figurepath):
@@ -426,13 +416,13 @@ def server(input, output, session):
             print(config)
 
         # Re-run the analysis after the preprocessing update
-        subprocess.run(["python", "src/main.py"])
+        subprocess.run(["python", "/app/src/main.py"], check=True)
 
         # Force the UI to update and display the new images by triggering re-render
         @output
         @render.image
         def displayed_image1():
-            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'violin_qc_metrics.png')
+            image_path = os.path.join(project_root, '..', 'figures', 'violin_qc_metrics.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "350px"}
             return None
@@ -440,7 +430,7 @@ def server(input, output, session):
         @output
         @render.image
         def displayed_image2():
-            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_qc.png')
+            image_path = os.path.join(project_root, '..', 'figures', 'umap_qc.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "250px"}
             return None
@@ -448,7 +438,7 @@ def server(input, output, session):
         @output
         @render.image
         def displayed_image3():
-            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_top5.png')
+            image_path = os.path.join(project_root, '..', 'figures', 'umap_top5.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "400px"}
             return None
@@ -456,7 +446,7 @@ def server(input, output, session):
         @output
         @render.image
         def displayed_image4():
-            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'rank_genes_groups_leiden.png')
+            image_path = os.path.join(project_root, '..', 'figures', 'rank_genes_groups_leiden.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "400px"}
             return None
@@ -464,7 +454,7 @@ def server(input, output, session):
         @output
         @render.image
         def displayed_image5():
-            image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umapML_umap.png')
+            image_path = os.path.join(project_root, '..', 'figures', 'umapML_umap.png')
             if os.path.exists(image_path):
                 return {"src": image_path, "height": "400px"}
             return None
