@@ -37,7 +37,6 @@ app_ui = ui.page_fluid(
 
     ui.tags.br(),
     ui.tags.br(),
-    # QC Parameter Inputs with modified note positions and line breaks
     # QC Parameter Inputs with explanatory text between title and input box
     ui.h3("Modify QC Metrics"),
         # Min Genes per Cell
@@ -88,16 +87,13 @@ app_ui = ui.page_fluid(
     ui.output_text("fileStatus"),
     ui.tags.br(),
 
-
-    
-
-
-    # # UMAP Gene Selection
-    # ui.h3("Visualize UMAP"),
-    # ui.input_text("gene_input", "Enter Genes (comma-separated):", placeholder="E.g., CST3, NKG7"),
-    # ui.input_action_button("update_umap", "Generate UMAP"),
-    # ui.output_image("umap_plot"), 
-
+    # UMAP Gene Selection
+    ui.h3("Visualize UMAP"),
+    ui.input_text("gene_input", "Enter Gene:", placeholder="E.g., 'CST3' or 'NKG7' "),
+    ui.input_action_button("update_umap", "Generate UMAP"),
+    ui.output_text("gene_status"),
+    ui.tags.br(),
+    ui.output_image("displayed_image6"), 
 
 
 )
@@ -331,6 +327,39 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         return None  # Return None if image is not found
+    
+    @output
+    @render.image
+    @reactive.event(input.update_umap)
+    def displayed_image6():
+        with open(config_path, "r") as f:
+            config = json.load(f)
+        config["visualization"]["custom_genes"] = input.gene_input()
+        with open(config_path, "w") as f:
+            json.dump(config, f, indent=4)
+        upload_path = os.path.join(os.getcwd(), 'figures', 'umap_custom_gene.png')
+        print(upload_path)
+
+        if os.path.exists(upload_path):
+            os.remove(upload_path)
+        
+        subprocess.run(["python", "src/main.py"])
+        
+
+        @output
+        @render.text
+        def gene_status():
+            return None
+
+        image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_custom_gene.png')
+        if os.path.exists(image_path):
+            return {"src": image_path, "height": "400px"}  # Return image with height setting
+        else: 
+            @output
+            @render.text
+            def gene_status():
+                return "❌ Gene not found in the dataset for custom UMAP."
+        #return None  # Return None if image is not found
 
     @output
     @render.text
