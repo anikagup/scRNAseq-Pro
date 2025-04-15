@@ -91,6 +91,8 @@ app_ui = ui.page_fluid(
     ui.h3("Visualize UMAP"),
     ui.input_text("gene_input", "Enter Genes (comma-separated):", placeholder="E.g., CST3, NKG7"),
     ui.input_action_button("update_umap", "Generate UMAP"),
+    ui.output_text("gene_status"),
+    ui.tags.br(),
     ui.output_image("displayed_image6"), 
 
 
@@ -343,10 +345,21 @@ def server(input, output, session):
         
         subprocess.run(["python", "src/main.py"])
         
+
+        @output
+        @render.text
+        def gene_status():
+            return None
+
         image_path = os.path.join(project_root, 'scRNA-seq-Automation', 'figures', 'umap_custom_gene.png')
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
-        return None  # Return None if image is not found
+        else: 
+            @output
+            @render.text
+            def gene_status():
+                return "❌ Gene not found in the dataset for custom UMAP."
+        #return None  # Return None if image is not found
 
     @output
     @render.text
