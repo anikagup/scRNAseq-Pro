@@ -2,7 +2,7 @@
     "input_file": "uploads/latest.h5ad",
     "file_type": "h5ad",
     "preprocessing_params": {
-        "min_genes": 200,
+        "min_genes": 300,
         "min_cells": 4,
         "target_sum": 10000,
         "n_top_genes": 2000,

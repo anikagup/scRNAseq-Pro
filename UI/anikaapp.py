@@ -5,11 +5,8 @@ import subprocess
 import json
 import scanpy as sc
 
-# Print statement to confirm app start
 print("App is starting...")
 
-# Load configuration
-# Get the absolute path to the root of the project
 project_root = os.path.dirname(__file__)
 print(project_root)
 config_path = os.path.join(project_root, "../src/config.json")
@@ -17,7 +14,6 @@ print(config_path)
 with open(config_path, 'r') as f:
     config = json.load(f)
 
-# Helper function to clear contents of a folder
 def clear_folder(folder_path):
     if os.path.exists(folder_path):
         for filename in os.listdir(folder_path):
@@ -30,140 +26,114 @@ def clear_folder(folder_path):
             except Exception as e:
                 print(f"⚠️ Failed to delete {file_path}. Reason: {e}")
 
+def styled_button(input_id, label):
+    return ui.input_action_button(input_id, label, style="background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px;")
 
-# Define the UI layout
 app_ui = ui.page_fluid(
-    ui.tags.style("body { background-color: lightblue; }"),
-    ui.panel_title("Welcome to RNA Pro"),
+    ui.tags.style("body { background-color: white; }"),
+    ui.panel_title(ui.tags.h1("Welcome to RNA Pro", style="font-weight: bold; font-size: 2em;")),
+    ui.tags.br(),
+    ui.tags.br(),
 
-    # File upload for multiple formats
-    ui.input_file(
-        "file_upload",
-        "Upload scRNA-seq Data",
-        multiple=False,
-        accept=[".fastq", ".csv", ".h5ad", ".h5", ".loom"]
-    ),
-
+    ui.input_file("file_upload", "Upload scRNA-seq Data", multiple=False, accept=[".fastq", ".csv", ".h5ad", ".h5", ".loom"]),
     ui.output_text("file_info"),
     ui.tags.br(),
 
-    ui.input_action_button("activate_button_ui", "Run analysis"),
+    styled_button("activate_button_ui", "Run analysis"),
+    ui.tags.br(),
+    ui.tags.br(),
 
+    ui.h3("Modify QC Metrics", style="text-decoration: underline;"),
     ui.tags.br(),
-    ui.tags.br(),
-    # QC Parameter Inputs with explanatory text between title and input box
-    ui.h3("Modify QC Metrics"),
-        # Min Genes per Cell
-    ui.h4("Min Genes per Cell", style="font-size: 16px;"),
+    ui.h4("Min Genes per Cell"),
     ui.div(
-        ui.tags.span("📝 This sets the minimum number of genes that must be detected in each cell for it to be included in the analysis. It helps filter out low-quality or dying cells that have little RNA content. A common threshold is 200-500 genes per cell but this may vary depending on tissue type and sequencing depth.", style="font-size: 14px;"),
-        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
+        ui.tags.span("📝 This sets the minimum number of genes that must be detected in each cell for it to be included in the analysis. It helps filter out low-quality or dying cells that have little RNA content. A common threshold is 200-500 genes per cell but this may vary depending on tissue type and sequencing depth.", style="color: white;"),
+        style="background-color: #28a745; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
     ),
     ui.input_numeric("min_genes", " ", value=config["preprocessing_params"]["min_genes"], min=50, max=1000, step=50),
-    
-    # Min Cells per Gene
-    ui.h4("Min Cells per Gene", style="font-size: 16px;"),
+    ui.h4("Min Cells per Gene"),
     ui.div(
-        ui.tags.span("📝 This sets the minimum number of cells a gene must appear in to be kept in the dataset. It removes genes that are only expressed in a few cells and may represent noise. A typical threshold is 3–10 cells per gene, which balances removing artifact noise without discarding biologically relevant genes.", style="font-size: 14px;"),
-        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
+        ui.tags.span("📝 This sets the minimum number of cells a gene must appear in to be kept in the dataset. It removes genes that are only expressed in a few cells and may represent noise. A typical threshold is 3–10 cells per gene, which balances removing artifact noise without discarding biologically relevant genes.", style="color: white;"),
+        style="background-color: #28a745; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
     ),
     ui.input_numeric("min_cells", " ", value=config["preprocessing_params"]["min_cells"], min=1, max=50, step=1),
-    
-    # Normalization Target Sum
-    ui.h4("Normalization Target Sum", style="font-size: 16px;"),
+    ui.h4("Normalization Target Sum"),
     ui.div(
-        ui.tags.span("📝 This sets the total gene expression count to which each cell is scaled, allowing fair comparison between cells with different sequencing depths. A typical value is 10,000.", style="font-size: 14px;"),
-        style="background-color: white; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
+        ui.tags.span("📝 This sets the total gene expression count to which each cell is scaled, allowing fair comparison between cells with different sequencing depths. A typical value is 10,000.", style="color: white;"),
+        style="background-color: #28a745; padding: 10px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); width: 40%;"
     ),
     ui.input_numeric("target_sum", " ", value=config["preprocessing_params"]["target_sum"], min=1000, max=50000, step=1000),
-
-    ui.input_action_button("reprocess_button", "Recalculate QC and Preprocessing"),
-    
+    styled_button("reprocess_button", "Recalculate QC and Preprocessing"),
     ui.output_text("reprocess_status"),
 
     ui.tags.br(),
     ui.h3("Violin QC"),
     ui.output_image("displayed_image1"),
-    ui.output_ui("violin_qc_text"),
     ui.h3("UMAP QC"),
-    ui.output_image("displayed_image2"),   
+    ui.output_image("displayed_image2"),
     ui.h3("UMAP Top 5"),
-    ui.output_image("displayed_image3"), 
+    ui.output_image("displayed_image3"),
     ui.h3("Ranked Genes"),
-    ui.output_image("displayed_image4"), 
+    ui.output_image("displayed_image4"),
     ui.h3("ML UMAP"),
-    ui.output_image("displayed_image5"), 
+    ui.output_image("displayed_image5"),
 
     ui.tags.br(),
+    styled_button("downloadData1", "Download Processed CSV"),
+    ui.output_text("fileStatus_1"),
 
-    # Add download button for file and dynamic status message
-    ui.download_button("downloadData", "Download Processed CSV"),
-    ui.output_text("fileStatus"),
     ui.tags.br(),
+    styled_button("download_deg", "Download Differential Gene Expression List"),
+    ui.output_text("fileStatus_2"),
 
-    # UMAP Gene Selection
-    ui.h3("Visualize UMAP"),
+    ui.tags.br(),
+    ui.h3("Visualize Custom Gene-Specific UMAP"),
     ui.input_text("gene_input", "Enter Gene:", placeholder="E.g., 'CST3' or 'NKG7' "),
-    ui.input_action_button("update_umap", "Generate UMAP"),
+    styled_button("update_umap", "Generate UMAP"),
     ui.output_text("gene_status"),
     ui.tags.br(),
-    ui.output_image("displayed_image6"), 
-
-
+    ui.output_image("displayed_image6"),
 )
 
+uploaded_path = reactive.Value(None)
+def resolve_deg_path():
+    # Absolute path to the DEG file in the container
+    return os.path.abspath("/app/processed_data/all_degs.csv")
+
 def server(input, output, session):
-    upload_dir = os.path.join(os.getcwd(), 'uploads')
-    os.makedirs(upload_dir, exist_ok=True)
-    adata = None  # Placeholder for loaded data
+    file_ready = reactive.Value(False)
 
-    # Function to save uploaded file
-    """ def save_uploaded_file():
-        file = input.file_upload()
-        if file:
-            base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # Move up one level
-            upload_dir = os.path.join(base_dir, "UI/uploads")
+    ALLOWED_EXTENSIONS = {".h5": "10x",".loom": "loom", ".h5ad": "h5ad", ".csv": "csv", ".txt": "txt"}
 
-            # Save the uploaded file to the uploads folder
-            temp_path = file[0]["datapath"]
-            saved_path = os.path.join(upload_dir, file[0]["name"])
-            shutil.move(temp_path, saved_path)
-            return saved_path
-        return None """
+    @reactive.effect
+    @reactive.event(input.file_upload)
+    def handle_upload():
+        clear_folder(os.path.join(os.path.dirname(__file__), "../uploads"))
 
-    # Supported file extensions
-    ALLOWED_EXTENSIONS = {
-        ".h5": "10x",
-        ".loom": "loom",
-        ".h5ad": "h5ad",
-        ".csv": "csv",
-        ".txt": "txt"
-    }
 
-    def save_uploaded_file():
+        # Function to clear uploads folder when app is run
+        clear_folder(os.path.join(os.path.dirname(__file__), "../processed_data"))
+
+        
+
+
         file = input.file_upload()
         if not file:
-            return None
+            return
 
-        # Project root and paths
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        upload_dir = os.path.join(base_dir, "uploads")  # <== NOT UI/uploads anymore
+        upload_dir = os.path.join(base_dir, "uploads")
         config_path = os.path.join(base_dir, "src", "config.json")
-
-        # Get extension
         uploaded_name = file[0]["name"]
         uploaded_ext = os.path.splitext(uploaded_name)[1]
-
         if uploaded_ext not in ALLOWED_EXTENSIONS:
             print(f"❌ Unsupported file type: {uploaded_ext}")
             return None
-
-        # Save with a standard name (e.g., uploads/latest.h5ad)
+        
         temp_path = file[0]["datapath"]
         save_path = os.path.join(upload_dir, f"latest{uploaded_ext}")
         shutil.move(temp_path, save_path)
 
-        # Update config.json
         try:
             with open(config_path, "r") as f:
                 config = json.load(f)
@@ -179,77 +149,69 @@ def server(input, output, session):
         print(f"✅ File saved to: {save_path}")
         print(f"✅ config.json updated.")
 
+        uploaded_path.set(save_path)
+
         return save_path
+
 
     @output
     @render.text
     def file_info():
-        saved_path = save_uploaded_file()
-        if saved_path:
-            return f"✅ File saved and config updated: {saved_path}"
-        return "❌ Please upload an accepted file type."
-
-
-
-    clear_folder(os.path.join(os.path.dirname(__file__), "../uploads"))
-
-
-        # Function to clear uploads folder when app is run
-    clear_folder(os.path.join(os.path.dirname(__file__), "../processed_data"))
-
-
-
+        path = uploaded_path()
+        return f"✅ File saved and config updated: {path}" if path else "❌ Please upload an accepted file type."
+    
     @reactive.effect
     @reactive.event(input.activate_button_ui)
     def activate_analysis():
-        # Clearing CSV files and figures every time analysis is pressed
-        clear_folder(os.path.join(project_root, '..', 'data'))
-        clear_folder(os.path.join(project_root, '..', 'figures'))
-
-        # Run the main.py script in the 'src' directory
-        script_path = "/app/src/main.py"
-        
-        subprocess.run(['python', script_path], check=True)  # Run the script
-        print("main.py has been executed successfully.")
-        processed_csv_path = "/app/processed_data/all_degs.csv"
+        subprocess.run(["python", "/app/src/main.py"], check=True)
+        print("main.py has been executed successfully")
+        processed_csv_path = "/app/processed_data/processed_matrix.csv"
+        deg_path = "/app/processed_data/all_degs.csv"
         if os.path.exists(processed_csv_path):
-            print(f"✅ Found DEGs at: {processed_csv_path}")
+            print(f"✅ Found Cell Count Matrix at: {processed_csv_path}")
             file_ready.set(True)
         else:
-            print(f"❌ DEGs file not found at {processed_csv_path}")
+            print(f"❌ Cell Count Matrix not found at {processed_csv_path}")
             file_ready.set(False)
+        file_ready.set(True)
+        if os.path.exists(deg_path):
+            print(f"✅ Found DEG List at: {deg_path}")
+            file_ready.set(True)
+        else:
+            print(f"❌ DEG list not found at {deg_path}")
+            file_ready.set(False)
+        file_ready.set(True)
 
-    processed_csv_path = os.path.join("/app", "processed_data", "all_degs.csv")
+    processed_csv_path = os.path.join("/app", "processed_data", "processed_matrix.csv")
+    deg_path = os.path.join("/app", "/processed_data", "all_degs.csv")
+
     # Always render download button
     @output
     @render.download
-    def downloadData():
+    def downloadData1():
         if os.path.exists(processed_csv_path):
             return processed_csv_path
         else:
             # If file doesn't exist, prevent download by returning None
             return None
-
-
-    file_ready = reactive.Value(False)
-
+    
+       
     @output
-    @render.text
-    def fileStatus():
-        if file_ready():
-            return "✅ Processed CSV is ready for download."
-        else:
-            return "❌ Processed CSV not found yet. Run the analysis first."
+    @render.download
+    def download_deg():
+        path = resolve_deg_path()
+        if os.path.exists(path):
+            return path
+        return None
+
 
 
     @output
     @render.image
-    @reactive.event(input.activate_button_ui)
+    @reactive.event(input.activate_button_ui, input.reprocess_button)
     def displayed_image1():
         image_path = os.path.join(project_root, '..', 'figures', 'violin_qc_metrics.png')
-        if os.path.exists(image_path):
-            return {"src": image_path, "height": "350px"}  # Return image with height setting
-        return None  # Return None if image is not found
+        return {"src": image_path, "height": "350px"} if file_ready() and os.path.exists(image_path) else None
     @output
     @render.ui
     @reactive.event(input.activate_button_ui)
@@ -270,54 +232,35 @@ def server(input, output, session):
                 """
             )
         return None
+
     @output
     @render.image
-    @reactive.event(input.activate_button_ui)
+    @reactive.event(input.activate_button_ui, input.reprocess_button)
     def displayed_image2():
         image_path = os.path.join(project_root, '..', 'figures', 'umap_qc.png')
-        if os.path.exists(image_path):
-            return {"src": image_path, "height": "250px"}  # Return image with height setting
-        return None  # Return None if image is not found
+        return {"src": image_path, "height": "250px"} if file_ready() and os.path.exists(image_path) else None
 
     @output
     @render.image
-    @reactive.event(input.activate_button_ui)
+    @reactive.event(input.activate_button_ui, input.reprocess_button)
     def displayed_image3():
         image_path = os.path.join(project_root, '..', 'figures', 'umap_top5.png')
-        if os.path.exists(image_path):
-            return {"src": image_path, "height": "400px"}  # Return image with height setting
-        return None  # Return None if image is not found
-    
-    """@output
-    @render.image
-    @reactive.event(input.activate_button_ui)
-    def displayed_image3a():
-        image_path = os.path.join(project_root, '..', 'figures', 'umap_custom_gene.png')
-        print("🔍 Looking for:", image_path)
-        print("✅ Exists?", os.path.exists(image_path))
-
-        if os.path.exists(image_path):
-            return {"src": image_path, "height": "400px"}
-        return None """
+        return {"src": image_path, "height": "400px"} if file_ready() and os.path.exists(image_path) else None
 
     @output
     @render.image
-    @reactive.event(input.activate_button_ui)
+    @reactive.event(input.activate_button_ui, input.reprocess_button)
     def displayed_image4():
         image_path = os.path.join(project_root, '..', 'figures', 'rank_genes_groups_leiden.png')
-        if os.path.exists(image_path):
-            return {"src": image_path, "height": "400px"}  # Return image with height setting
-        return None  # Return None if image is not found
-    
+        return {"src": image_path, "height": "400px"} if file_ready() and os.path.exists(image_path) else None
+
     @output
     @render.image
-    @reactive.event(input.activate_button_ui)
+    @reactive.event(input.activate_button_ui, input.reprocess_button)
     def displayed_image5():
         image_path = os.path.join(project_root, '..', 'figures', 'umapML_umap.png')
-        if os.path.exists(image_path):
-            return {"src": image_path, "height": "400px"}  # Return image with height setting
-        return None  # Return None if image is not found
-    
+        return {"src": image_path, "height": "400px"} if file_ready() and os.path.exists(image_path) else None
+
     @output
     @render.image
     @reactive.event(input.update_umap)
@@ -345,10 +288,7 @@ def server(input, output, session):
         if os.path.exists(image_path):
             return {"src": image_path, "height": "400px"}  # Return image with height setting
         else: 
-            @output
-            @render.text
-            def gene_status():
-                return "❌ Gene not found in the dataset for custom UMAP."
+            return "❌ Gene not found in the dataset for custom UMAP."
         #return None  # Return None if image is not found
 
     @output
@@ -356,116 +296,34 @@ def server(input, output, session):
     def reprocess_status():
         return "Press 'Recalculate QC' to apply new metrics."
 
+    @output
+    @render.text
+    def fileStatus_1():
+        return "✅ Processed CSV is ready for download." if file_ready() else "❌ Processed CSV not found yet. Run the analysis first."
+    
+    @output
+    @render.text
+    def fileStatus_2():
+        return "✅ Differential Gene Expression list is ready for download." if file_ready() else "❌ DEG List not found yet. Run the analysis first."
+
+
     @reactive.effect
     @reactive.event(input.reprocess_button)
     def reprocess_data():
-        # Path to the figures folder
-        figurepath = os.path.join(project_root, '..', 'figures')
-
-        # Clear the figures folder by deleting all its contents
-        if os.path.exists(figurepath):
-            shutil.rmtree(figurepath)  # Delete the folder and its contents
-        os.makedirs(figurepath, exist_ok=True)  # Recreate the folder
-
-        # Clear the displayed images on the website by setting them to None
-        @output
-        @render.image
-        def displayed_image1():
-            return None
-
-        @output
-        @render.image
-        def displayed_image2():
-            return None
-
-        @output
-        @render.image
-        def displayed_image3():
-            return None
-
-        @output
-        @render.image
-        def displayed_image4():
-            return None
-        
-        @output
-        @render.image
-        def displayed_image5():
-            return None
-
         with open(config_path, "r") as f:
             config = json.load(f)
-        # Save the original input_file and file_type before updating other parts of the config
-        original_input_file = config.get("input_file")
-        original_file_type = config.get("file_type")
-
-        # Update only the QC parameters
         config["preprocessing_params"]["min_genes"] = input.min_genes()
         config["preprocessing_params"]["min_cells"] = input.min_cells()
         config["preprocessing_params"]["target_sum"] = input.target_sum()
-
-        # Ensure input_file and file_type remain unchanged
-        if original_input_file is not None:
-            config["input_file"] = original_input_file
-        if original_file_type is not None:
-            config["file_type"] = original_file_type
-
-        # Write updated config back to file without overwriting input_file or file_type
         with open(config_path, "w") as f:
             json.dump(config, f, indent=4)
-            print(config)
 
-        # Re-run the analysis after the preprocessing update
         subprocess.run(["python", "/app/src/main.py"], check=True)
+        file_ready.set(True)
 
-        # Force the UI to update and display the new images by triggering re-render
-        @output
-        @render.image
-        def displayed_image1():
-            image_path = os.path.join(project_root, '..', 'figures', 'violin_qc_metrics.png')
-            if os.path.exists(image_path):
-                return {"src": image_path, "height": "350px"}
-            return None
-
-        @output
-        @render.image
-        def displayed_image2():
-            image_path = os.path.join(project_root, '..', 'figures', 'umap_qc.png')
-            if os.path.exists(image_path):
-                return {"src": image_path, "height": "250px"}
-            return None
-
-        @output
-        @render.image
-        def displayed_image3():
-            image_path = os.path.join(project_root, '..', 'figures', 'umap_top5.png')
-            if os.path.exists(image_path):
-                return {"src": image_path, "height": "400px"}
-            return None
-
-        @output
-        @render.image
-        def displayed_image4():
-            image_path = os.path.join(project_root, '..', 'figures', 'rank_genes_groups_leiden.png')
-            if os.path.exists(image_path):
-                return {"src": image_path, "height": "400px"}
-            return None
-        
-        @output
-        @render.image
-        def displayed_image5():
-            image_path = os.path.join(project_root, '..', 'figures', 'umapML_umap.png')
-            if os.path.exists(image_path):
-                return {"src": image_path, "height": "400px"}
-            return None
-
-        # Update the UI to show the completion message by updating the 'reprocess_status' output
         @output
         @render.text
         def reprocess_status():
-            return "Reprocessing complete!"
+            return "✅ Reprocessing complete!"
 
-# Create the app
 app = App(app_ui, server)
-
-
