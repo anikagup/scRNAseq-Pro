@@ -163,7 +163,11 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.activate_button_ui)
     def activate_analysis():
-        subprocess.run(["python", "/app/src/main.py"], check=True)
+        result = subprocess.run(["python", "/app/src/main.py"], capture_output=True, text=True)
+        print("STDOUT:", result.stdout)
+        print("STDERR:", result.stderr)
+        result.check_returncode()  # This will still raise CalledProcessError if failed
+
         print("main.py has been executed successfully")
         processed_csv_path = "/app/processed_data/processed_matrix.csv"
         deg_path = "/app/processed_data/all_degs.csv"
