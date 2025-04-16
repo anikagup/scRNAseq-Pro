@@ -30,6 +30,9 @@ COPY . .
 # Create a directory for serving images
 RUN mkdir -p /app/www
 
+# Create directories needed by the app
+RUN mkdir -p /app/www /app/uploads /app/processed_data /app/figures
+
 # Expose the app port
 EXPOSE 8000
 
